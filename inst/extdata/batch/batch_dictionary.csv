@@ -1,0 +1,188 @@
+sheet,field,applies_to,type,unit,required,precedence,allowed_values,description
+farm,Ids,farm,text,,yes,,unique per farm,Farm identifier; links all farm-level sheets.
+farm,farm_name,farm,text,,no,farm > Ids,,Name of the farm; defaults to Ids.
+farm,group_*,farm,text,,no,,any,"Optional grouping columns (e.g. group_site, group_system); not used by the model, carried into batch summaries."
+farm,region,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_region.region_code,IPCC region used for manure methane factors.
+farm,climate_zone_2,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_climate.climate_desc,IPCC climate zone (manure methane conversion factors).
+farm,soil_description,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_soil.soil_desc,Soil type.
+farm,soil_k_value,farm,number,RUSLE K factor,no,farm sheet > lkp_defaults (section farm) > parameter database (lkp_soil.k_value of soil_description),>= 0,Soil erodibility.
+farm,soil_n,farm,number,g/kg,yes,farm sheet > lkp_defaults (section farm),>= 0,Soil nitrogen content.
+farm,soil_c,farm,number,g/kg,yes,farm sheet > lkp_defaults (section farm),>= 0,Soil carbon content.
+farm,soil_clay,farm,number,%,yes,farm sheet > lkp_defaults (section farm),0-100,Soil clay content.
+farm,soil_bulk,farm,number,g/cm3,yes,farm sheet > lkp_defaults (section farm),> 0,Soil bulk density.
+farm,soil_depth,farm,number,m,yes,farm sheet > lkp_defaults (section farm),> 0,Soil depth.
+farm,annual_prec,farm,number,mm/year,yes,farm sheet > lkp_defaults (section farm),> 0,Annual precipitation.
+farm,rain_length,farm,number,months/year,yes,farm sheet > lkp_defaults (section farm),0-12,Length of the rainy season.
+farm,et,farm,number,mm/year,yes,farm sheet > lkp_defaults (section farm),> 0,Reference evapotranspiration (ET0).
+farm,cropland_system,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_croplandsystem.sys_desc,Soil organic carbon land-use setting.
+farm,cropland_system_ipcc,farm,number,IPCC stock change factor,no,farm sheet > lkp_defaults (section farm) > parameter database (lkp_croplandsystem.change_factor of cropland_system),> 0,IPCC factor for cropland_system; taken from the database unless given.
+farm,cropland_tillage,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_tillageregime.tillage_desc,Soil organic carbon land-use setting.
+farm,cropland_tillage_ipcc,farm,number,IPCC stock change factor,no,farm sheet > lkp_defaults (section farm) > parameter database (lkp_tillageregime.change_factor of cropland_tillage),> 0,IPCC factor for cropland_tillage; taken from the database unless given.
+farm,cropland_orgmatter,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_organicmatter.orgmatter_desc,Soil organic carbon land-use setting.
+farm,cropland_orgmatter_ipcc,farm,number,IPCC stock change factor,no,farm sheet > lkp_defaults (section farm) > parameter database (lkp_organicmatter.change_factor of cropland_orgmatter),> 0,IPCC factor for cropland_orgmatter; taken from the database unless given.
+farm,grassland_management,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_grasslandman.management_desc,Soil organic carbon land-use setting.
+farm,grassland_management_ipcc,farm,number,IPCC stock change factor,no,farm sheet > lkp_defaults (section farm) > parameter database (lkp_grasslandman.change_factor of grassland_management),> 0,IPCC factor for grassland_management; taken from the database unless given.
+farm,grassland_implevel,farm,choice,,yes,farm sheet > lkp_defaults (section farm),lkp_grassinputlevel.grassinputlevel_desc,Soil organic carbon land-use setting.
+farm,grassland_implevel_ipcc,farm,number,IPCC stock change factor,no,farm sheet > lkp_defaults (section farm) > parameter database (lkp_grassinputlevel.change_factor of grassland_implevel),> 0,IPCC factor for grassland_implevel; taken from the database unless given.
+farm,grassland_toarable,farm,number,ha,no,farm sheet > lkp_defaults (section farm) > 0,>= 0,Area converted from grassland to arable land.
+farm,arable_tograssland,farm,number,ha,no,farm sheet > lkp_defaults (section farm) > 0,>= 0,Area converted from arable land to grassland.
+farm,purchased_manure,farm,number,kg N/year,no,farm sheet > lkp_defaults (section farm) > 0,>= 0,Annual purchase of manure.
+farm,purchased_compost,farm,number,kg N/year,no,farm sheet > lkp_defaults (section farm) > 0,>= 0,Annual purchase of compost.
+farm,purchased_organic_n,farm,number,kg N/year,no,farm sheet > lkp_defaults (section farm) > 0,>= 0,Annual purchase of other organic N additions.
+farm,purchased_bedding,farm,number,kg N/year,no,farm sheet > lkp_defaults (section farm) > 0,>= 0,Annual purchase of bedding materials.
+farm,waste_production_milk,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Milk lost or wasted at the production stage.
+farm,waste_production_meat,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Meat lost or wasted at the production stage.
+farm,waste_distribution_milk,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Milk lost or wasted at the distribution stage.
+farm,waste_distribution_meat,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Meat lost or wasted at the distribution stage.
+farm,waste_processing_milk,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Milk lost or wasted at the processing stage.
+farm,waste_processing_meat,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Meat lost or wasted at the processing stage.
+farm,waste_consume_milk,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Milk lost or wasted at the consume stage.
+farm,waste_consume_meat,farm,number,%,no,farm sheet > lkp_defaults (section farm) > 0,0-100,Meat lost or wasted at the consume stage.
+season,Ids,farm,text,,yes (if the farm has its own seasons),,Ids in farm,Farm the seasons belong to.
+season,season_name,farm,text,,yes,season sheet > lkp_defaults (section season),unique per farm,Season name; must match feed_basket.season_name.
+season,season_length,farm,number,days,yes,season sheet > lkp_defaults (section season),> 0; total = 365,Season length; a farm's seasons must add up to 365 days.
+livestock,Ids,farm,text,,yes,,Ids in farm,Farm the livestock belong to.
+livestock,livetype_code,farm,code,,yes,,lkp_livetype.livetype_code,Livestock type in the parameter database; one row per farm and code.
+livestock,livetype_desc,farm,text,,no,parameter database,,Filled in automatically from livetype_code (formula); the name from the parameter database is used.
+livestock,number,farm,number,animals,yes,,> 0,Number of animals of this type (herd_composition in the study object).
+livestock,annual_milk,farm,number,kg/animal/year,no,livestock sheet > lkp_defaults (section livestock) > 0,>= 0,Milk production.
+livestock,annual_wool,farm,number,kg/animal/year,no,livestock sheet > lkp_defaults (section livestock) > 0,>= 0,Wool or hair production.
+livestock,annual_growth,farm,number,kg/animal/year,no,livestock sheet > lkp_defaults (section livestock) > 0,>= 0,Live weight gain.
+livestock,work_hour,farm,number,hours/day/animal,no,livestock sheet > lkp_defaults (section livestock) > 0,>= 0,Work by draught animals.
+livestock,piglets_relying_on_milk,farm,number,%,no,livestock sheet > lkp_defaults (section livestock) > 0,>= 0,Percentage of the piglets that live on the sow's milk only (lactating/pregnant sows only).
+livestock,time_in_stable,farm,number,fraction of day,yes,livestock sheet > lkp_defaults (section livestock) > 0,0-1; the four times add up to 1,Time spent in stable.
+livestock,time_in_non_roofed_enclosure,farm,number,fraction of day,yes,livestock sheet > lkp_defaults (section livestock) > 0,0-1; the four times add up to 1,Time spent in non-roofed enclosure.
+livestock,time_in_onfarm_grazing,farm,number,fraction of day,yes,livestock sheet > lkp_defaults (section livestock) > 0,0-1; the four times add up to 1,Time spent in on-farm grazing.
+livestock,time_in_offfarm_grazing,farm,number,fraction of day,yes,livestock sheet > lkp_defaults (section livestock) > 0,0-1; the four times add up to 1,Time spent in off-farm grazing.
+livestock,distance_to_pasture,farm,number,km,no,livestock sheet > lkp_defaults (section livestock) > 0,>= 0,Distance from stable/enclosure to pasture.
+livestock,manureman_stable,farm,choice,,yes (if time_in_stable > 0),livestock sheet > lkp_defaults (section livestock),lkp_manureman.manureman_desc,"Manure management in stable, option 1: for all the manure dropped there, or for the fraction in manure_share_1_stable."
+livestock,manure_share_1_stable,farm,number,fraction,no,livestock sheet > 1 - manure_share_2_stable,0-1,Fraction of the manure dropped in stable managed with option 1 (manureman_stable). With manure_share_2_stable it adds up to 1; give either one (blank = 1 - manure_share_2_stable).
+livestock,manureman_2_stable,farm,choice,,yes (if manure_share_2_stable > 0),livestock sheet,lkp_manureman.manureman_desc,"Manure management in stable, option 2 (optional): for the fraction in manure_share_2_stable."
+livestock,manure_share_2_stable,farm,number,fraction,no,livestock sheet > 0,0-1,Fraction of the manure dropped in stable managed with option 2. With manure_share_1_stable it adds up to 1; give either one.
+livestock,manure_in_stable,farm,number,fraction,no,livestock sheet > lkp_defaults (section livestock) > 0,0-1,Collection of manure in stable.
+livestock,manureman_non_roofed_enclosure,farm,choice,,yes (if time_in_non_roofed_enclosure > 0),livestock sheet > lkp_defaults (section livestock),lkp_manureman.manureman_desc,"Manure management in non-roofed enclosure, option 1: for all the manure dropped there, or for the fraction in manure_share_1_non_roofed_enclosure."
+livestock,manure_share_1_non_roofed_enclosure,farm,number,fraction,no,livestock sheet > 1 - manure_share_2_non_roofed_enclosure,0-1,Fraction of the manure dropped in non-roofed enclosure managed with option 1 (manureman_non_roofed_enclosure). With manure_share_2_non_roofed_enclosure it adds up to 1; give either one (blank = 1 - manure_share_2_non_roofed_enclosure).
+livestock,manureman_2_non_roofed_enclosure,farm,choice,,yes (if manure_share_2_non_roofed_enclosure > 0),livestock sheet,lkp_manureman.manureman_desc,"Manure management in non-roofed enclosure, option 2 (optional): for the fraction in manure_share_2_non_roofed_enclosure."
+livestock,manure_share_2_non_roofed_enclosure,farm,number,fraction,no,livestock sheet > 0,0-1,Fraction of the manure dropped in non-roofed enclosure managed with option 2. With manure_share_1_non_roofed_enclosure it adds up to 1; give either one.
+livestock,manure_in_non_roofed_enclosure,farm,number,fraction,no,livestock sheet > lkp_defaults (section livestock) > 0,0-1,Collection of manure in non-roofed enclosure.
+livestock,manureman_onfarm_grazing,farm,choice,,yes (if time_in_onfarm_grazing > 0),livestock sheet > lkp_defaults (section livestock),lkp_manureman.manureman_desc,"Manure management in on-farm grazing, option 1: for all the manure dropped there, or for the fraction in manure_share_1_onfarm_grazing."
+livestock,manure_share_1_onfarm_grazing,farm,number,fraction,no,livestock sheet > 1 - manure_share_2_onfarm_grazing,0-1,Fraction of the manure dropped in on-farm grazing managed with option 1 (manureman_onfarm_grazing). With manure_share_2_onfarm_grazing it adds up to 1; give either one (blank = 1 - manure_share_2_onfarm_grazing).
+livestock,manureman_2_onfarm_grazing,farm,choice,,yes (if manure_share_2_onfarm_grazing > 0),livestock sheet,lkp_manureman.manureman_desc,"Manure management in on-farm grazing, option 2 (optional): for the fraction in manure_share_2_onfarm_grazing."
+livestock,manure_share_2_onfarm_grazing,farm,number,fraction,no,livestock sheet > 0,0-1,Fraction of the manure dropped in on-farm grazing managed with option 2. With manure_share_1_onfarm_grazing it adds up to 1; give either one.
+livestock,manure_in_field,farm,number,fraction,no,livestock sheet > lkp_defaults (section livestock) > 0,0-1,Collection of manure in fields/pasture.
+livestock,manureman_offfarm_grazing,farm,choice,,yes (if time_in_offfarm_grazing > 0),livestock sheet > lkp_defaults (section livestock),lkp_manureman.manureman_desc,"Manure management in off-farm grazing, option 1: for all the manure dropped there, or for the fraction in manure_share_1_offfarm_grazing."
+livestock,manure_share_1_offfarm_grazing,farm,number,fraction,no,livestock sheet > 1 - manure_share_2_offfarm_grazing,0-1,Fraction of the manure dropped in off-farm grazing managed with option 1 (manureman_offfarm_grazing). With manure_share_2_offfarm_grazing it adds up to 1; give either one (blank = 1 - manure_share_2_offfarm_grazing).
+livestock,manureman_2_offfarm_grazing,farm,choice,,yes (if manure_share_2_offfarm_grazing > 0),livestock sheet,lkp_manureman.manureman_desc,"Manure management in off-farm grazing, option 2 (optional): for the fraction in manure_share_2_offfarm_grazing."
+livestock,manure_share_2_offfarm_grazing,farm,number,fraction,no,livestock sheet > 0,0-1,Fraction of the manure dropped in off-farm grazing managed with option 2. With manure_share_1_offfarm_grazing it adds up to 1; give either one.
+livestock,manure_onfarm_fraction,farm,number,fraction,no,livestock sheet > lkp_defaults (section livestock) > 0,0-1,Fraction of collected manure used on the farm.
+livestock,manure_sales_fraction,farm,number,fraction,no,livestock sheet > lkp_defaults (section livestock) > 0,0-1,Fraction of collected manure sold.
+livestock,body_weight,farm,number,kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Average body weight.
+livestock,body_weight_weaning,farm,number,kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,"Live weight of the young at weaning (sheep and goats only: growth, and suckling of ewes and does that are not milked)."
+livestock,body_weight_year_one,farm,number,kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Live weight at one year of age (sheep and goats only).
+livestock,adult_weight,farm,number,kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Mature body weight (cattle and buffalo only: energy for growth).
+livestock,litter_size,farm,number,number,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Litter size (pigs).
+livestock,lactation_length,farm,number,days,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,"Days the young suckle after birth (ewes, does and sows only; not used for cattle)."
+livestock,proportion_growth_piglets_milk,farm,number,%,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Growth of piglets covered by milk.
+livestock,lw_gain_piglets,farm,number,kg/day,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Live weight gain of piglets.
+livestock,cp_maintenance,farm,number,kg/day,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Crude protein/lysine requirement for maintenance.
+livestock,cp_lys_pregnancy,farm,number,kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Crude protein/lysine requirement for pregnancy.
+livestock,cp_lactmilk,farm,number,kg/kg milk,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Crude protein requirement per kg milk.
+livestock,cp_lys_growth,farm,number,kg/kg LWG,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Crude protein/lysine requirement for growth.
+livestock,birth_interval,farm,number,years,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Parturition interval.
+livestock,protein_milkcontent,farm,number,%,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Protein content of milk.
+livestock,fat_milkcontent,farm,number,%,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Fat content of milk.
+livestock,energy_milkcontent,farm,number,kcal/kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Energy content of milk.
+livestock,energy_meatcontent,farm,number,kcal/kg,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Energy content of meat.
+livestock,protein_meatcontent,farm,number,%,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Protein content of meat.
+livestock,carcass_fraction,farm,number,fraction,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Carcass fraction of live weight.
+livestock,n_manure_content,farm,number,kg N/kg manure,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",>= 0,Average N content of manure.
+livestock,meat_product,farm,text,,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",,Meat product name.
+livestock,milk_product,farm,text,,no,"livestock sheet > parameter database (lkp_livetype, by livetype_code)",,Milk product name.
+livestock,species,parameter database,choice,,yes (from database),parameter database (lkp_livetype),"Cattle, Buffalo, Sheep, Goats, Pigs",Species (selects energy and nitrogen equations). Set per livestock type in the parameter database; not entered in the template.
+livestock,animal_class,parameter database,choice,,yes (from database),parameter database (lkp_livetype),depends on species (see ?livestock_species_classes),Physiological class within the species. Set per livestock type in the parameter database; not entered in the template.
+livestock,ipcc_ef_category_t2,parameter database,choice,,yes (from database),parameter database (lkp_livetype),"Dairy cows, Non-dairy, Sheep, Goats, N/A",Enteric methane category (Ym). Set per livestock type in the parameter database; not entered in the template.
+livestock,ipcc_manure_ch4_category,parameter database,choice,,yes (from database),parameter database (lkp_livetype),"Dairy cattle, Other cattle, Buffalo, Sheep, Goats, Swine",Manure methane category (Bo). Set per livestock type in the parameter database; not entered in the template.
+livestock,ipcc_n_loss_category,parameter database,choice,,yes (from database),parameter database (lkp_livetype),"Dairy Cow, Other Cattle, Swine, Poultry, Other animals",Manure N loss category. Set per livestock type in the parameter database; not entered in the template.
+livestock,ipcc_prp_category,parameter database,choice,,yes (from database),parameter database (lkp_livetype),"Cattle, pigs and poultry; Sheep and other animals",Pasture N2O group. Set per livestock type in the parameter database; not entered in the template.
+feed_basket,Ids,farm,text,,yes,,Ids in farm,Farm.
+feed_basket,livetype_code,farm,code,,yes,,livetype_code in the farm's livestock rows,Livestock type the allocation is for.
+feed_basket,livetype_desc,farm,text,,no,,,Filled in automatically from livetype_code (formula).
+feed_basket,season_name,farm,text,,yes,,season_name of the farm (or lkp_defaults season),Season.
+feed_basket,<feed_item_code>,farm,number,% of diet (dry matter),yes,,0-100; each row adds up to 100,"One column per feed item code, holding the share of that feed in the diet of this livestock type in this season."
+feed_items,Ids,farm,text,,yes,,Ids in farm,Farm (only farms whose feed values differ from the database).
+feed_items,feed_item_code,farm,code,,yes,,lkp_feeditem.feed_item_code,Feed item; codes used in feed_basket columns.
+feed_items,crop_code,farm,code,,yes (from database),"feed_items sheet > parameter database (lkp_feeditem, by feed_item_code)",lkp_crops.crop_code,Crop the feed comes from.
+feed_items,feed_item_name,farm,text,,yes (from database),"feed_items sheet > parameter database (lkp_feeditem, by feed_item_code)",,Feed name.
+feed_items,dm_content,farm,number,% of fresh matter,yes (from database),"feed_items sheet > parameter database (lkp_feeditem, by feed_item_code)",0-100,Dry matter content.
+feed_items,me_content,farm,number,MJ/kg DM,yes (from database),"feed_items sheet > parameter database (lkp_feeditem, by feed_item_code)",> 0,Metabolisable energy.
+feed_items,cp_content,farm,number,% of DM,yes (from database),"feed_items sheet > parameter database (lkp_feeditem, by feed_item_code)",0-100,Crude protein.
+feed_items,source_type,farm,choice,,yes,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (Main),"Main, Residue, Purchased","Whether the feed is the main product of a crop grown on the farm, a crop residue, or bought (bought feeds use no land of the farm)."
+feed_items,intercrop,farm,choice,,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (No),"Yes, No",Grown mixed with another crop (intercrop): Yes or No.
+feed_items,intercrop_fraction,farm,number,fraction,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),0-1,Fraction of the field occupied by this crop if intercropped.
+feed_items,cut_carry_fraction,farm,number,fraction,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),0-1,Cut-and-carry fraction.
+feed_items,slope_length,farm,number,m,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,Length of slope.
+feed_items,fraction_as_fertilizer,farm,number,fraction,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),0-1,Fraction of collected manure applied as fertiliser to this crop.
+feed_items,land_cover_desc,farm,choice,,yes,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default,lkp_landcover.landcover_desc,Land cover of the field.
+feed_items,landcover_c_factor,farm,number,factor,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default > parameter database (lkp_landcover),>= 0,Taken from the database for land_cover_desc unless given.
+feed_items,slope_desc,farm,choice,,yes,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default,lkp_slope.slope_desc,Slope of the field.
+feed_items,slope_p_factor,farm,number,factor,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default > parameter database (lkp_slope),>= 0,Taken from the database for slope_desc unless given.
+feed_items,urea,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,UREA applied to the crop.
+feed_items,npk,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,NPK applied to the crop.
+feed_items,dap,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,DAP applied to the crop.
+feed_items,ammonium_nitrate,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,Ammonium nitrate applied to the crop.
+feed_items,ammonium_sulfate,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,Ammonium sulfate applied to the crop.
+feed_items,n_solutions,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,N solutions applied to the crop.
+feed_items,ammonia,farm,number,kg/ha/year,no,feed_items sheet > lkp_feeditem_defaults (by feed_item_code) > default (0),>= 0,Ammonia applied to the crop.
+feed_type,Ids,farm,text,,yes,,Ids in farm,Farm (only farms whose crop values differ from the database).
+feed_type,crop_code,farm,code,,yes,,lkp_crops.crop_code,Crop.
+feed_type,crop_name,farm,text,,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",,Crop name.
+feed_type,category,farm,choice,,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)","cereal, legume, grass, tree crop, tree legume, ...","Crop category (nitrogen fixation, biomass)."
+feed_type,dry_yield,farm,number,t DM/ha/year,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,Main product dry yield.
+feed_type,residue_dry_yield,farm,number,t DM/ha/year,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,Residue dry yield.
+feed_type,main_n,farm,number,kg N/kg DM,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,Main product N content.
+feed_type,residue_n,farm,number,kg N/kg DM,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,Residue N content.
+feed_type,kc_initial,farm,number,-,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,"Crop coefficient, initial stage."
+feed_type,kc_midseason,farm,number,-,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,"Crop coefficient, mid-season."
+feed_type,kc_late,farm,number,-,yes (from database),"feed_type sheet > parameter database (lkp_crops, by crop_code)",>= 0,"Crop coefficient, late stage."
+feed_type,trees_ha,farm,number,trees/ha,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Trees per hectare.
+feed_type,trees_dhb,farm,number,cm,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Tree diameter at breast height.
+feed_type,trees_growth,farm,number,kg/year,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Tree annual growth.
+feed_type,trees_removal,farm,number,kg/year,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Tree annual removal.
+feed_type,trees_ha_dbh25,farm,number,trees/ha,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Trees with DBH < 25 cm.
+feed_type,average_dbh25,farm,number,cm,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,"Average DBH, trees < 25 cm."
+feed_type,increase_dbh25,farm,number,cm/year,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,"DBH increase, trees < 25 cm."
+feed_type,trees_ha_dbh2550,farm,number,trees/ha,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Trees with DBH 25-50 cm.
+feed_type,average_dbh2550,farm,number,cm,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,"Average DBH, trees 25-50 cm."
+feed_type,increase_dbh2550,farm,number,cm/year,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,"DBH increase, trees 25-50 cm."
+feed_type,trees_ha_dbh50,farm,number,trees/ha,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Trees with DBH > 50 cm.
+feed_type,average_dbh50,farm,number,cm,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,"Average DBH, trees > 50 cm."
+feed_type,increase_dbh50,farm,number,cm/year,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,"DBH increase, trees > 50 cm."
+feed_type,time_horizon,farm,number,years,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Time for trees to mature.
+feed_type,diameter_breast,farm,number,cm,no,"feed_type sheet > parameter database (lkp_crops, by crop_code) > 0",>= 0,Tree breast diameter.
+feed_type,main_product_removal,farm (feed_type or feed_items),number,fraction,no,feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (0),0-1,Main product removed from the field.
+feed_type,residue_removal,farm (feed_type or feed_items),number,fraction,no,feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (0),0-1,Crop residue removed from the field.
+feed_type,residue_burnt,farm (feed_type or feed_items),number,fraction,no,feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (0),0-1,Crop residue burnt.
+feed_type,cultivation_period,farm (feed_type or feed_items),number,days,no,feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (0),>= 0,Cultivation period (rice).
+feed_type,grassman_desc,farm (feed_type or feed_items),choice,,yes (grasses),feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (Nominally managed),lkp_grasslandman.management_desc,Grassland management.
+feed_type,grassman_change_factor,farm (feed_type or feed_items),number,factor,no,feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default > parameter database (lkp_grasslandman),> 0,Taken from the database for grassman_desc unless given.
+feed_type,water_regime,farm (feed_type or feed_items),choice,,yes (rice),feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (None),IPCC table 5.13 (ref_choices sheet),Rice methane setting.
+feed_type,ecosystem_type,farm (feed_type or feed_items),choice,,yes (rice),feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (None),IPCC table 5.12 (ref_choices sheet),Rice methane setting.
+feed_type,organic_amendment,farm (feed_type or feed_items),choice,,yes (rice),feed_items sheet > feed_type sheet > lkp_crops_defaults (by crop_code) > default (None),IPCC table 5.14 (ref_choices sheet),Rice methane setting.
+fertilizer,Ids,farm,text,,yes,,Ids in farm,Farm.
+fertilizer,fertilizer_desc,farm,choice,,yes,fertilizer sheet (none if blank),"Urea, NPK, DAP, Ammonium nitrate, Ammonium sulfate, N solutions, Ammonia","Synthetic fertiliser used on the farm (one row per fertiliser). The amounts applied to each crop are in feed_items (columns urea, npk, dap, ...)."
+fertilizer,fertilizer_code,farm,code,,no,not in the template: taken from the parameter database (lkp_orgfertilizer),lkp_orgfertilizer.fertilizer_code,"Fertiliser code. Not needed: found from fertilizer_desc, and not used in the calculations (accepted in older files)."
+fertilizer,percentage_n,farm,number,% N,no,fertilizer sheet > standard N content,0-100,"Nitrogen content. Leave blank for the standard value (Urea 46, DAP 18, Ammonium nitrate 34.5, Ammonium sulfate 21, N solutions 32, Ammonia 82; see ref_fertilizer). Needed for NPK, which has no standard value (e.g. 17 for 17-17-17): without it, NPK is counted as 0 % N and flagged."
+farm,country,farm,text,,no,farm sheet > lkp_defaults (section farm),,Country (metadata; carried into batch summaries).
+farm,latitude,farm,number,decimal degrees,no,farm sheet,,"Latitude of the farm (from the survey GPS point; metadata, not used by the model)."
+farm,longitude,farm,number,decimal degrees,no,farm sheet,,"Longitude of the farm (from the survey GPS point; metadata, not used by the model)."
+farm,respondent_age,farm,number,years,no,farm sheet,>= 0,"Age of the respondent (from the survey; metadata, not used by the model). Results can be compared by age ranges chosen on the results page."
+feed_items,land_cover,farm,code,,no,derived from land_cover_desc,lkp_landcover.landcover_code,Code of land_cover_desc; either may be given.
+feed_items,slope,farm,code,,no,derived from slope_desc,lkp_slope.slope_code,Code of slope_desc; either may be given.
+feed_type,grassman,farm (feed_type or feed_items),code,,no,derived from grassman_desc,lkp_grasslandman.management_code,Code of grassman_desc; either may be given.
+feed_items,fraction_as_manure,set by converter,text,,no,"""NULL""",,Internal study-object field; not entered.
+feed_items,n_fertilizer,set by converter,text,,no,"""NULL""",,Internal study-object field; not entered.
+feed_items,ilri_fdb_code,farm,text,,no,,,Code of the feed in the ILRI feeds database (metadata).
+feed_items,source,farm,text,,no,,,Source of the feed values (metadata).
+feed_type,source,farm,text,,no,,,Source of the crop values (metadata).
+feed_type,feed_type_code,farm,code,,no,alias of crop_code,,Older name for crop_code; accepted and renamed.
+feed_type,feed_type_name,farm,text,,no,alias of crop_name,,Older name for crop_name; accepted and renamed.

@@ -26,5 +26,5 @@ authors:
   - family-names: Notenbaert
     given-names: An
 repository-code: "https://github.com/CIAT/cleaned"
-version: "0.7.0"
+version: 0.19.7
 date-released: 2026-08-17

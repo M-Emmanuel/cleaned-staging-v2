@@ -4,154 +4,434 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Comprehensive Livestock Environmental Assessment for Improved Nutrition, a Secured Environment, and Sustainable Development along Livestock and Fish Value Chains • cleaned</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
-<script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="Documentation for running, extending, and integrating the iCLEANED model with batch workflows and the iCLEANED application.
+">
+<title>iCLEANED environmental assessment package • cleaned</title>
+<script src="deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Comprehensive Livestock Environmental Assessment for Improved Nutrition, a Secured Environment, and Sustainable Development along Livestock and Fish Value Chains">
-<meta property="og:description" content="CLEANED (Comprehensive Livestock Environmental Assessment for Improved Nutrition, a 
-    Secured Environment, and Sustainable Development along Livestock and Fish Value Chains) is an 
-    ex-ante tool that assesses environmental impacts of livestock systems and value chains.  It 
-    evaluates land requirements, productivity, water use, soil health, economics and greenhouse gas 
-    emissions.">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="iCLEANED environmental assessment package">
+<meta property="og:description" content="Documentation for running, extending, and integrating the iCLEANED model with batch workflows and the iCLEANED application.
+">
+<!-- mathjax --><script src="file:///usr/share/javascript/mathjax/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
-    <div class="container template-home">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">cleaned</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
-      </span>
-    </div>
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
+    
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    
+    <a class="navbar-brand me-2" href="index.html">cleaned</a>
+
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
-<li>
-  <a href="reference/index.html">Reference</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/ciat/cleaned/">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-</div>
-<!--/.nav-collapse -->
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>User and developer guides</h6>
+    <a class="dropdown-item" href="articles/cleaned-overview.html">iCLEANED Model Overview</a>
+    <a class="dropdown-item" href="articles/input-contract.html">Input Contract</a>
+    <a class="dropdown-item" href="articles/output-contract.html">Output Contract</a>
+    <a class="dropdown-item" href="articles/developer-guide.html">Developer Guide</a>
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
 
-      
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/ciat/cleaned/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+</div>
 
-      </header><div class="row">
-  <div class="contents col-md-9">
-<div id="cleaned" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#cleaned" class="anchor"></a>cleaned</h1></div>
-<p>The goal of cleaned is to assess changes from transforming livestock value chains.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>The development version can be installed via:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/">"devtools"</a></span><span class="op">)</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"ciat/cleaned"</span><span class="op">)</span></code></pre></div>
-</div>
-<div id="usage" class="section level2">
-<h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
-<p>This is a basic example which shows you how to calculate feed basket quality</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CIAT/cleaned">cleaned</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">mufindi</span><span class="op">)</span>
-<span class="va">feed_basket_quality</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/feed_quality.html">feed_quality</a></span><span class="op">(</span><span class="va">mufindi</span><span class="op">)</span></code></pre></div>
-</div>
-<div id="more-information" class="section level2">
-<h2 class="hasAnchor">
-<a href="#more-information" class="anchor"></a>More information</h2>
+    
+  </div>
+</nav><div class="container template-home">
+<div class="row">
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="cleaned">cleaned<a class="anchor" aria-label="anchor" href="#cleaned"></a>
+</h1></div>
+<p><code>cleaned</code> implements the iCLEANED model: inclusive Comprehensive Livestock Environmental Assessment for Improved Nutrition, a Secured Environment, and Sustainable Development along livestock and fish value chains.</p>
+<p>The package estimates environmental indicators for livestock production systems from a structured scenario input object. The iCLEANED Shiny app builds scenarios, passes them into the package, and uses compact app-facing outputs for result tables and interactive plots. The package contains only what the app uses.</p>
+<div class="section level2">
+<h2 id="what-the-package-calculates">What the Package Calculates<a class="anchor" aria-label="anchor" href="#what-the-package-calculates"></a>
+</h2>
+<p>The core model pipeline links feed, livestock, soil, water, and greenhouse gas modules:</p>
+<pre class="mermaid"><code>flowchart LR
+  A["Scenario input object"] --&gt; B["feed_quality()"]
+  B --&gt; C["energy_requirement()"]
+  C --&gt; D["land_requirement()"]
+  D --&gt; E["soil_health()"]
+  C --&gt; F["land_productivity()"]
+  D --&gt; G["water_requirement()"]
+  C --&gt; H["n_balance()"]
+  E --&gt; H
+  D --&gt; I["biomass_calculation()"]
+  D --&gt; J["soil_organic_carbon()"]
+  I --&gt; J
+  C --&gt; K["ghg_emission()"]
+  D --&gt; K
+  H --&gt; K
+  B --&gt; K
+  E --&gt; L["combineOutputs()"]
+  F --&gt; L
+  G --&gt; L
+  H --&gt; L
+  I --&gt; L
+  J --&gt; L
+  K --&gt; L
+  L --&gt; M["JSON, Excel, app plot data"]
+  M --&gt; N["calculate_differences()"]
+  N --&gt; O["clean_plotting() / compare_scenario()"]</code></pre>
+<p>The main indicators include:</p>
 <ul>
-<li><p>Please <a href="https://github.com/ciat/cleaned/issues">report any issues or bugs</a>.</p></li>
-<li><p>License: MIT.</p></li>
-<li><p>Get citation information for <em>cleaned</em> in R by typing <code><a href="https://rdrr.io/r/utils/citation.html">citation(package = "cleaned")</a></code>.</p></li>
+<li>Feed quality and feed allocation by livestock class and season.</li>
+<li>Energy, protein, dry matter intake, manure, and livestock productivity.</li>
+<li>Land and dry matter requirements for on-farm feeds, off-farm roughages, off-farm concentrates, and imported concentrates.</li>
+<li>Soil erosion, nitrogen balance, biomass carbon change, and soil organic carbon change.</li>
+<li>Water use by feed item and product.</li>
+<li>Greenhouse gas emissions from enteric fermentation, manure, soils, fertilizer, burning, rice, and off-farm feed production.</li>
+<li>Scenario comparison indicators for GHG emissions, land, nitrogen balance, erosion, water, carbon stock change, and food/protein output.</li>
 </ul>
 </div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>Install from a local checkout:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/remotes/man/install_local.html" class="external-link">install_local</a></span><span class="op">(</span><span class="st">"path/to/cleaned"</span><span class="op">)</span></span></code></pre></div>
+<p>Or install from a tagged GitHub release:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/remotes/man/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"CIAT/cleaned@v0.7.0"</span><span class="op">)</span></span></code></pre></div>
+<p>For development on Windows, verify the package with:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">R</span> CMD INSTALL <span class="op">.</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>Rscript <span class="op">-</span>e <span class="st">"library(cleaned); packageVersion('cleaned')"</span></span></code></pre></div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="links">
-<h2>Links</h2>
+<div class="section level2">
+<h2 id="runtime-requirements">Runtime Requirements<a class="anchor" aria-label="anchor" href="#runtime-requirements"></a>
+</h2>
+<p>The package requires R &gt;= 4.0.0 and imports:</p>
+<ul>
+<li><code>jsonlite</code></li>
+<li><code>data.table</code></li>
+<li><code>tidyr</code></li>
+<li><code>dplyr</code></li>
+<li><code>tibble</code></li>
+<li><code>utils</code></li>
+<li><code>stringr</code></li>
+<li><code>openxlsx</code></li>
+</ul>
+<p>The iCLEANED app has additional dependencies outside this package. In particular, interactive plotting uses <code>ggiraph</code>; when the app uses <code>ggplot2 4.x</code>, use <code>ggiraph 0.9.6</code> or newer.</p>
+</div>
+<div class="section level2">
+<h2 id="input-object">Input Object<a class="anchor" aria-label="anchor" href="#input-object"></a>
+</h2>
+<p>Most exported functions use a nested scenario object named <code>para</code>. It can be built from JSON or from the app’s scenario builder. At minimum, a full model run expects these sections:</p>
+<ul>
+<li>
+<code>livestock</code>: livestock category, herd composition, weight, growth, milk, manure management and nutrient fields, plus the classification fields below.</li>
+<li>
+<code>seasons</code>: season names and lengths.</li>
+<li>
+<code>feed_items</code>: feed nutrient composition, crop/feed production parameters, fertilizer application, water coefficients, erosion parameters, and biomass/SOC fields.</li>
+<li>
+<code>feed_basket</code>: feed allocations by season and livestock category.</li>
+<li>
+<code>fertilizer</code>: fertilizer descriptions and nitrogen content. Empty fertilizer data are accepted by some modules.</li>
+<li>Farm, climate, soil, land-use, manure import, and product waste scalar fields.</li>
+<li>External parameter lists: energy parameters, GHG/IPCC parameters, and stock change parameters.</li>
+</ul>
+<p>For feed nutrient composition, the minimum fields needed by <code><a href="reference/feed_quality.html">feed_quality()</a></code> are:</p>
+<ul>
+<li>
+<code>dm_content</code>: dry matter content, percent of fresh matter.</li>
+<li>
+<code>me_content</code>: metabolizable energy using the package’s feed database basis.</li>
+<li>
+<code>cp_content</code>: crude protein, percent of dry matter.</li>
+</ul>
+<p>The full pipeline needs additional agronomic and spatial fields because land, nitrogen, water, soil, and biomass modules depend on crop yield, residue, slope, soil, evapotranspiration, precipitation, fertilizer, and tree parameters.</p>
+<div class="section level3">
+<h3 id="livestock-classification">Livestock classification<a class="anchor" aria-label="anchor" href="#livestock-classification"></a>
+</h3>
+<p>Equations are chosen from these fields, not from the livestock name, so livestock types can be added or renamed freely:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Field</th>
+<th>Allowed values</th>
+<th>Used for</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>species</code></td>
+<td>Cattle, Buffalo, Sheep, Goats, Pigs</td>
+<td>Energy and nitrogen equations, species totals</td>
+</tr>
+<tr class="even">
+<td><code>animal_class</code></td>
+<td>Cattle/Buffalo: Cows, Adult males, Young stock; Sheep: Ewes, Breeding rams, Fattening rams, Lambs; Goats: Does, Breeding bucks, Fattening bucks, Kids; Pigs: Lactating/pregnant sows, Dry sows/boars, Growers</td>
+<td>Energy and nitrogen equations</td>
+</tr>
+<tr class="odd">
+<td><code>ipcc_ef_category_t2</code></td>
+<td>Dairy cows, Non-dairy, Sheep, Goats, N/A</td>
+<td>Enteric methane Ym (IPCC Tables 10.12, 10.13)</td>
+</tr>
+<tr class="even">
+<td><code>ipcc_manure_ch4_category</code></td>
+<td>Dairy cattle, Other cattle, Buffalo, Sheep, Goats, Swine</td>
+<td>Manure methane Bo (IPCC Table 10.16)</td>
+</tr>
+<tr class="odd">
+<td><code>ipcc_n_loss_category</code></td>
+<td>Dairy Cow, Other Cattle, Swine, Poultry, Other animals</td>
+<td>Manure N losses (IPCC Table 10.22)</td>
+</tr>
+<tr class="even">
+<td><code>ipcc_prp_category</code></td>
+<td>Cattle, pigs and poultry; Sheep and other animals</td>
+<td>Pasture N2O factor EF3PRP (IPCC Table 11.1)</td>
+</tr>
+</tbody>
+</table>
+<p>Study objects without these fields still run: the fields are filled from the names of the 23 standard iCLEANED livestock types (see <code><a href="reference/resolve_livestock_categories.html">?resolve_livestock_categories</a></code>). See <a href="vignettes/input-contract.Rmd">Input Contract</a> for the full field reference and unit notes.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="standard-model-run">Standard Model Run<a class="anchor" aria-label="anchor" href="#standard-model-run"></a>
+</h2>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CIAT/cleaned" class="external-link">cleaned</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jeroen.r-universe.dev/jsonlite" class="external-link">jsonlite</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">para</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="st">"scenario_input.json"</span><span class="op">)</span></span>
+<span><span class="va">energy_parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"energy_parameters.json"</span>, package <span class="op">=</span> <span class="st">"cleaned"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ghg_parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ghg_parameters.json"</span>, package <span class="op">=</span> <span class="st">"cleaned"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">stock_change_parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"stock_change_parameters.json"</span>, package <span class="op">=</span> <span class="st">"cleaned"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">feed_basket_quality</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/feed_quality.html">feed_quality</a></span><span class="op">(</span><span class="va">para</span><span class="op">)</span></span>
+<span><span class="va">energy_required</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/energy_requirement.html">energy_requirement</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">feed_basket_quality</span>, <span class="va">energy_parameters</span><span class="op">)</span></span>
+<span><span class="va">land_required</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/land_requirement.html">land_requirement</a></span><span class="op">(</span><span class="va">feed_basket_quality</span>, <span class="va">energy_required</span>, <span class="va">para</span><span class="op">)</span></span>
+<span><span class="va">soil_erosion</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/soil_health.html">soil_health</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">land_required</span><span class="op">)</span></span>
+<span><span class="va">nitrogen_balance</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/n_balance.html">n_balance</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">land_required</span>, <span class="va">energy_required</span>, <span class="va">soil_erosion</span><span class="op">)</span></span>
+<span><span class="va">water_required</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/water_requirement.html">water_requirement</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">land_required</span><span class="op">)</span></span>
+<span><span class="va">livestock_productivity</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/land_productivity.html">land_productivity</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">energy_required</span><span class="op">)</span></span>
+<span><span class="va">biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/biomass_calculation.html">biomass_calculation</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">land_required</span><span class="op">)</span></span>
+<span><span class="va">soil_carbon</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/soil_organic_carbon.html">soil_organic_carbon</a></span><span class="op">(</span><span class="va">para</span>, <span class="va">stock_change_parameters</span>, <span class="va">land_required</span>, <span class="va">biomass</span><span class="op">)</span></span>
+<span><span class="va">ghg_emissions</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ghg_emission.html">ghg_emission</a></span><span class="op">(</span></span>
+<span>  <span class="va">para</span>,</span>
+<span>  <span class="va">energy_required</span>,</span>
+<span>  <span class="va">ghg_parameters</span>,</span>
+<span>  <span class="va">land_required</span>,</span>
+<span>  <span class="va">nitrogen_balance</span>,</span>
+<span>  <span class="va">feed_basket_quality</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/combineOutputs.html">combineOutputs</a></span><span class="op">(</span></span>
+<span>  <span class="va">para</span>,</span>
+<span>  <span class="va">feed_basket_quality</span>,</span>
+<span>  <span class="va">energy_required</span>,</span>
+<span>  <span class="va">land_required</span>,</span>
+<span>  <span class="va">soil_erosion</span>,</span>
+<span>  <span class="va">water_required</span>,</span>
+<span>  <span class="va">nitrogen_balance</span>,</span>
+<span>  <span class="va">livestock_productivity</span>,</span>
+<span>  <span class="va">biomass</span>,</span>
+<span>  <span class="va">soil_carbon</span>,</span>
+<span>  <span class="va">ghg_emissions</span>,</span>
+<span>  filePath <span class="op">=</span> <span class="st">"scenario_output.json"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="output-structure">Output Structure<a class="anchor" aria-label="anchor" href="#output-structure"></a>
+</h2>
+<p><code><a href="reference/combineOutputs.html">combineOutputs()</a></code> writes an Excel workbook and returns a list that supports both app and batch workflows.</p>
+<p>App-facing outputs:</p>
+<ul>
+<li><code>json_output</code></li>
+<li><code>on_farm_table</code></li>
+<li><code>nitrogen_balance</code></li>
+<li><code>land_required</code></li>
+<li><code>water_use_per_feed_item</code></li>
+</ul>
+<p>Batch-facing outputs:</p>
+<ul>
+<li>Detailed land, dry matter, soil, nitrogen, water, livestock productivity, manure, biomass, soil carbon, product waste, and GHG tables.</li>
+<li>Full Excel sheets for intermediate results and diagnostics.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="scenario-comparison">Scenario Comparison<a class="anchor" aria-label="anchor" href="#scenario-comparison"></a>
+</h2>
+<p>The app’s comparison screen runs three steps on the scenario output JSON files written by <code><a href="reference/combineOutputs.html">combineOutputs()</a></code>:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>calculate_differences(comparison_file, scenario_1.json, scenario_2.json, ...)</code> reads the scenario outputs and writes one comparison JSON (one row of scalar indicators per scenario) plus <code>runs_comparison.xlsx</code>.</li>
+<li>
+<code>clean_plotting(comparison_file, output_dir)</code> prepares the plot data with no base scenario.</li>
+<li>
+<code>compare_scenario(base_scenario, comparison_file, output_dir)</code> prepares the plot data as percentage differences from a chosen base scenario.</li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="batch-processing">Batch Processing<a class="anchor" aria-label="anchor" href="#batch-processing"></a>
+</h2>
+<p>Many farms can be described in one Excel file (or collected with ODK) and run in one go. The batch file holds farm-level data only; anything left blank comes from the parameter database (<code>lkp_defaults</code>, <code>lkp_feeditem_defaults</code>, <code>lkp_crops_defaults</code> and the lookup tables).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">db</span> <span class="op">&lt;-</span> <span class="st">"path/to/parameters_database/Ethiopia - Small Ruminants"</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/write_batch_template.html">write_batch_template</a></span><span class="op">(</span><span class="va">db</span>, <span class="st">"batch_template.xlsx"</span><span class="op">)</span>        <span class="co"># 1. empty template + dictionary</span></span>
+<span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/validate_batch_input.html">validate_batch_input</a></span><span class="op">(</span><span class="st">"my_farms.xlsx"</span>, <span class="va">db</span><span class="op">)</span>    <span class="co"># 2. check before running</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_batch.html">run_batch</a></span><span class="op">(</span><span class="st">"my_farms.xlsx"</span>, <span class="st">"batch_output"</span>,      <span class="co"># 3. one study object and result per farm,</span></span>
+<span>                 parameter_database <span class="op">=</span> <span class="va">db</span><span class="op">)</span>              <span class="co">#    summary and group averages</span></span>
+<span><span class="fu"><a href="reference/compare_batches.html">compare_batches</a></span><span class="op">(</span><span class="va">baseline</span><span class="op">$</span><span class="va">summary</span>, <span class="va">res</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span>         <span class="co"># 4. farm-by-farm differences</span></span>
+<span></span>
+<span><span class="co"># Field data collection with ODK</span></span>
+<span><span class="fu"><a href="reference/write_odk_form.html">write_odk_form</a></span><span class="op">(</span><span class="va">db</span>, <span class="st">"farm_survey.xlsx"</span>, groups <span class="op">=</span> <span class="st">"site"</span><span class="op">)</span>   <span class="co"># XLSForm for ODK Central / Kobo</span></span>
+<span><span class="va">input</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_odk_export.html">read_odk_export</a></span><span class="op">(</span><span class="st">"odk_central_export.zip"</span>, <span class="st">"farm_survey.xlsx"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/write_batch_file.html">write_batch_file</a></span><span class="op">(</span><span class="va">input</span>, <span class="va">db</span>, <span class="st">"my_farms.xlsx"</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="reference/build_study_objects.html">build_study_objects()</a></code> and <code><a href="reference/run_study_object.html">run_study_object()</a></code> give access to the intermediate steps. In iCLEANED the same steps are available on the Batch page (enabled with the environment variable <code>ICLEANED_BATCH=true</code>).</p>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>The documentation set is organized as:</p>
+<ul>
+<li><a href="vignettes/cleaned-overview.Rmd">Model Overview</a></li>
+<li><a href="vignettes/input-contract.Rmd">Input Contract</a></li>
+<li><a href="vignettes/output-contract.Rmd">Output Contract</a></li>
+<li><a href="vignettes/developer-guide.Rmd">Developer Guide</a></li>
+</ul>
+<p>The documentation website is built from these files with <code><a href="https://rdrr.io/pkg/pkgdown/man/build_site.html" class="external-link">pkgdown::build_site()</a></code> (configuration in <code>_pkgdown.yml</code>, output in <code>docs/</code>).</p>
+<p>Function-level help is available in R:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">?</span><span class="va">feed_quality</span></span>
+<span><span class="op">?</span><span class="va">combineOutputs</span></span>
+<span><span class="op">?</span><span class="va">calculate_differences</span></span>
+<span><span class="op">?</span><span class="va">resolve_livestock_categories</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="development-checks">Development Checks<a class="anchor" aria-label="anchor" href="#development-checks"></a>
+</h2>
+<p>Before pushing calculation or output changes:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>Rscript <span class="op">-</span>e <span class="st">"for (f in list.files('R', pattern='\\.R$', full.names=TRUE)) parse(file=f)"</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">R</span> CMD INSTALL <span class="op">.</span></span></code></pre></div>
+<p>Recommended full package check:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">R</span> CMD check <span class="op">--</span>no<span class="op">-</span>manual <span class="op">.</span></span></code></pre></div>
+<p>For app compatibility, install the local package into the app test library and confirm:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CIAT/cleaned" class="external-link">cleaned</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/find.package.html" class="external-link">find.package</a></span><span class="op">(</span><span class="st">"cleaned"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"cleaned"</span><span class="op">)</span></span></code></pre></div>
+<p>The path should point to the intended local or released package version.</p>
+</div>
+<div class="section level2">
+<h2 id="repository-layout">Repository Layout<a class="anchor" aria-label="anchor" href="#repository-layout"></a>
+</h2>
+<pre class="text"><code>R/                 exported model functions and helpers
+man/               generated function documentation
+vignettes/         user and developer documentation
+docs/              documentation website (pkgdown)
+inst/extdata/      model parameter JSON files read by the app, and
+                   example_input.json (example study object, Rungwe)
+auxilary_info/     reference workbooks: output data dictionary (ReadMe.xlsx) and
+                   literature benchmarks (CLEANED_benchmark_RGQ.xlsx, also
+                   shipped in the app's www/ReadMe.xlsx)</code></pre>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>Use the package citation metadata in <code>CITATION.cff</code> when citing the software.</p>
+</div>
+</div>
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/ciat/cleaned/">https://​github.com/​ciat/​cleaned/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/ciat/cleaned/issues">https://​github.com/​ciat/​cleaned/​issues</a>
-</li>
+<li><a href="https://github.com/ciat/cleaned/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/ciat/cleaned/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
 <div class="community">
-<h2>Community</h2>
+<h2 data-toc-skip>Community</h2>
 <ul class="list-unstyled">
 <li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>John Mutua <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-2314-3146" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Stephen Oloo <br><small class="roles"> Author </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html#citation">Citing cleaned</a></li>
 </ul>
 </div>
 
-  </div>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Stephen Oloo <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-2314-3146" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Emmanuel Mwema <br><small class="roles"> Author, maintainer </small>  </li>
+<li>John Mutua <br><small class="roles"> Author </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
 </div>
 
 
-      <footer><div class="copyright">
-  <p>Developed by John Mutua, Stephen Oloo.</p>
+
+  </aside>
 </div>
 
-<div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+
+    <footer><div class="pkgdown-footer-left">
+  <p></p>
+<p>Developed by Stephen Oloo, Emmanuel Mwema, John Mutua.</p>
 </div>
 
-      </footer>
+<div class="pkgdown-footer-right">
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+</div>
+
+    </footer>
 </div>
 
   
 
+  
 
   </body>
 </html>

@@ -61,25 +61,18 @@ Rscript -e "for (f in list.files('vignettes', pattern='\\.Rmd$', full.names=TRUE
 The package imports:
 
 - `jsonlite`
-- `tidyverse`
 - `data.table`
-- `lubridate`
-- `plyr`
 - `tidyr`
 - `dplyr`
 - `tibble`
 - `utils`
-- `rlang`
 - `stringr`
-- `ggplot2`
 - `openxlsx`
 
-Suggested development dependencies:
+Suggested development dependencies (for the vignettes):
 
 - `knitr`
 - `rmarkdown`
-- `testthat`
-- `spelling`
 
 The package itself does not import `ggiraph`; that is an app dependency. If the app uses interactive plots with `ggplot2 4.x`, use `ggiraph 0.9.6` or newer.
 
@@ -184,14 +177,14 @@ For an internal or GitHub release:
 
 1. Update `Version:` in `DESCRIPTION`.
 2. Run syntax checks and `R CMD INSTALL .`.
-3. Run tests and, if possible, `R CMD check --no-manual .`.
+3. Run example study objects through the full pipeline (as the app does) and, if possible, `R CMD check --no-manual .`.
 4. Commit with a clear release message.
 5. Push the release branch.
 6. Create a tag, for example:
 
 ```powershell
-git tag cleaned_v0.7.0
-git push origin cleaned_v0.7.0
+git tag v0.7.0
+git push origin v0.7.0
 ```
 
 7. Create a GitHub release from the tag.

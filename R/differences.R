@@ -14,8 +14,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(para)
-#' data(ghg_para)
+#' para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+#' ghg_para <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"), flatten = TRUE)
 #' feed_basket_quality <- feed_quality(para)
 #' energy_required <- energy_requirement(para,feed_basket_quality)
 #' land_required <- land_requirement(feed_basket_quality, energy_required, para)

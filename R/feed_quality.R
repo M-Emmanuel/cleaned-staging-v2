@@ -12,8 +12,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(mufindi)
-#' feed_quality(mufindi)
+#' para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+#' feed_quality(para)
 #' }
 #'
 #' @export

@@ -19,7 +19,7 @@ It computes soil health
 }
 \examples{
 \dontrun{
-data(mufindi)
+para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
 feed_basket_quality <- feed_quality(para)
 energy_required <- energy_requirement(para,feed_basket_quality)
 land_required <- land_requirement(feed_basket_quality, energy_required, para)

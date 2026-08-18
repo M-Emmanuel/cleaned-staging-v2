@@ -1,6 +1,6 @@
 Package: cleaned
 Title: Comprehensive Livestock Environmental Assessment for Improved Nutrition, a Secured Environment, and Sustainable Development along Livestock and Fish Value Chains
-Version: 0.7.0
+Version: 0.7.0.9000
 Date: 2026-08-17
 Authors@R: c(person("Stephen", "Oloo",
         email = "oloostephen08@gmail.com",
@@ -27,26 +27,19 @@ BugReports: https://github.com/ciat/cleaned/issues
 Depends: R (>= 4.0.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 Imports:
     jsonlite,
-    tidyverse,
     data.table,
-    lubridate,
-    plyr,
     tidyr,
     dplyr,
     tibble,
     utils,
-    rlang,
     stringr,
-    ggplot2,
-    openxlsx
+    openxlsx,
+    zip
 Suggests:
     knitr,
-    rmarkdown,
-    testthat,
-    spelling
+    rmarkdown
+VignetteBuilder: knitr
 Language: en-US
 RoxygenNote: 7.3.1
-VignetteBuilder: knitr

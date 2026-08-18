@@ -9,7 +9,9 @@ ghg_emission(
   energy_required,
   ghg_ipcc_data,
   land_required,
-  nitrogen_balance
+  nitrogen_balance,
+  feed_basket_quality = NULL,
+  ym_prod = F
 )
 }
 \arguments{
@@ -22,6 +24,12 @@ ghg_emission(
 \item{land_required}{A list computed using the `land_requirement` function}
 
 \item{nitrogen_balance}{A dataframe computed using the `n_balance` function}
+
+\item{feed_basket_quality}{A dataframe computed using the `feed_quality`
+function. If `NULL`, it is taken from the calling environment.}
+
+\item{ym_prod}{Logical. If `TRUE`, the methane conversion factor (Ym) of
+dairy cows also depends on annual milk yield, not only on digestibility.}
 }
 \value{
 list
@@ -31,8 +39,8 @@ It computes greenhouse gas emissions.
 }
 \examples{
 \dontrun{
-data(mufindi)
-data(ghg_para)
+para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+ghg_ipcc_data <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"), flatten = TRUE)
 feed_basket_quality <- feed_quality(para)
 energy_required <- energy_requirement(para,feed_basket_quality)
 land_required <- land_requirement(feed_basket_quality, energy_required, para)

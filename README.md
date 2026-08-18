@@ -2,10 +2,7 @@
 
 `cleaned` implements the iCLEANED model: inclusive Comprehensive Livestock Environmental Assessment for Improved Nutrition, a Secured Environment, and Sustainable Development along livestock and fish value chains.
 
-The package estimates environmental indicators for livestock production systems from a structured scenario input object. It is used in two main workflows:
-
-- **Interactive app workflow**: the iCLEANED Shiny app builds scenarios, passes them into the package, and uses compact app-facing outputs for result tables and interactive plots.
-- **Batch workflow**: scripts process one or more scenario JSON files, write detailed JSON and Excel outputs, and compare scenarios using standardized indicators.
+The package estimates environmental indicators for livestock production systems from a structured scenario input object. The iCLEANED Shiny app builds scenarios, passes them into the package, and uses compact app-facing outputs for result tables and interactive plots. The package contains only what the app uses.
 
 ## What the Package Calculates
 
@@ -37,6 +34,7 @@ flowchart LR
   K --> L
   L --> M["JSON, Excel, app plot data"]
   M --> N["calculate_differences()"]
+  N --> O["clean_plotting() / compare_scenario()"]
 ```
 
 The main indicators include:
@@ -61,7 +59,7 @@ remotes::install_local("path/to/cleaned")
 Or install from a tagged GitHub release:
 
 ```r
-remotes::install_github("CIAT/cleaned@cleaned_v0.7.0")
+remotes::install_github("CIAT/cleaned@v0.7.0")
 ```
 
 For development on Windows, verify the package with:
@@ -76,20 +74,13 @@ Rscript -e "library(cleaned); packageVersion('cleaned')"
 The package requires R >= 4.0.0 and imports:
 
 - `jsonlite`
-- `tidyverse`
 - `data.table`
-- `lubridate`
-- `plyr`
 - `tidyr`
 - `dplyr`
 - `tibble`
 - `utils`
-- `rlang`
 - `stringr`
-- `ggplot2`
 - `openxlsx`
-
-Suggested packages for testing and documentation are `testthat`, `knitr`, `rmarkdown`, and `spelling`.
 
 The iCLEANED app has additional dependencies outside this package. In particular, interactive plotting uses `ggiraph`; when the app uses `ggplot2 4.x`, use `ggiraph 0.9.6` or newer.
 
@@ -97,7 +88,7 @@ The iCLEANED app has additional dependencies outside this package. In particular
 
 Most exported functions use a nested scenario object named `para`. It can be built from JSON or from the app's scenario builder. At minimum, a full model run expects these sections:
 
-- `livestock`: livestock category, herd composition, weight, growth, milk, manure management, nutrient, and IPCC category fields.
+- `livestock`: livestock category, herd composition, weight, growth, milk, manure management and nutrient fields, plus the classification fields below.
 - `seasons`: season names and lengths.
 - `feed_items`: feed nutrient composition, crop/feed production parameters, fertilizer application, water coefficients, erosion parameters, and biomass/SOC fields.
 - `feed_basket`: feed allocations by season and livestock category.
@@ -113,7 +104,20 @@ For feed nutrient composition, the minimum fields needed by `feed_quality()` are
 
 The full pipeline needs additional agronomic and spatial fields because land, nitrogen, water, soil, and biomass modules depend on crop yield, residue, slope, soil, evapotranspiration, precipitation, fertilizer, and tree parameters.
 
-See [Input Contract](vignettes/input-contract.Rmd) for the detailed field reference and unit notes.
+### Livestock classification
+
+Equations are chosen from these fields, not from the livestock name, so livestock types can be added or renamed freely:
+
+| Field | Allowed values | Used for |
+|---|---|---|
+| `species` | Cattle, Buffalo, Sheep, Goats, Pigs | Energy and nitrogen equations, species totals |
+| `animal_class` | Cattle/Buffalo: Cows, Adult males, Young stock; Sheep: Ewes, Breeding rams, Fattening rams, Lambs; Goats: Does, Breeding bucks, Fattening bucks, Kids; Pigs: Lactating/pregnant sows, Dry sows/boars, Growers | Energy and nitrogen equations |
+| `ipcc_ef_category_t2` | Dairy cows, Non-dairy, Sheep, Goats, N/A | Enteric methane Ym (IPCC Tables 10.12, 10.13) |
+| `ipcc_manure_ch4_category` | Dairy cattle, Other cattle, Buffalo, Sheep, Goats, Swine | Manure methane Bo (IPCC Table 10.16) |
+| `ipcc_n_loss_category` | Dairy Cow, Other Cattle, Swine, Poultry, Other animals | Manure N losses (IPCC Table 10.22) |
+| `ipcc_prp_category` | Cattle, pigs and poultry; Sheep and other animals | Pasture N2O factor EF3PRP (IPCC Table 11.1) |
+
+Study objects without these fields still run: the fields are filled from the names of the 23 standard iCLEANED livestock types (see `?resolve_livestock_categories`). See [Input Contract](vignettes/input-contract.Rmd) for the full field reference and unit notes.
 
 ## Standard Model Run
 
@@ -177,13 +181,54 @@ Batch-facing outputs:
 - Detailed land, dry matter, soil, nitrogen, water, livestock productivity, manure, biomass, soil carbon, product waste, and GHG tables.
 - Full Excel sheets for intermediate results and diagnostics.
 
-`calculate_differences()` reads one or more scenario output JSON files and writes:
+## Scenario Comparison
 
-- A comparison JSON file.
-- `runs_comparison.xlsx` with an `all_results` sheet.
-- One row per scenario with scalar indicators suitable for plotting and comparison.
+The app's comparison screen runs three steps on the scenario output JSON files written by `combineOutputs()`:
 
-See [Output Contract](vignettes/output-contract.Rmd) for the detailed output reference.
+1. `calculate_differences(comparison_file, scenario_1.json, scenario_2.json, ...)` reads the scenario outputs and writes one comparison JSON (one row of scalar indicators per scenario) plus `runs_comparison.xlsx`.
+2. `clean_plotting(comparison_file, output_dir)` prepares the plot data with no base scenario.
+3. `compare_scenario(base_scenario, comparison_file, output_dir)` prepares the plot data as percentage differences from a chosen base scenario.
+
+## Batch Processing
+
+Many farms can be collected in the field with ODK or KoboToolbox (or described
+in an Excel template) and run in one go. The batch file holds farm-level data only; anything left blank comes
+from the parameter database (`lkp_defaults`, `lkp_feeditem_defaults`,
+`lkp_crops_defaults` and the lookup tables).
+
+```r
+db <- "path/to/parameters_database/Ethiopia - Small Ruminants"
+
+write_batch_template(db, "batch_template.xlsx")        # 1. empty template + dictionary
+report <- validate_batch_input("my_farms.xlsx", db)    # 2. check before running
+res <- run_batch("my_farms.xlsx", "batch_output",      # 3. one study object and result per farm,
+                 parameter_database = db)              #    summary and group averages
+compare_batches(baseline$summary, res$summary)         # 4. farm-by-farm differences
+
+# One parameter database for batch processing: the long list of the livestock
+# types, feeds and crops of all regional databases (most common value kept
+# where they differ; review_conflicts.csv lists the differences)
+build_batch_database(regional_database_folders, "Long list - all regions", defaults_from = "Ethiopia - Small Ruminants")
+
+# Field data collection with ODK: farmer-framed questions; feeds and unusual
+# manure practices in the farmer's own words, matched to the database
+write_odk_form(db, "farm_survey.xlsx", groups = "site")   # XLSForm for ODK Central / Kobo
+odk <- read_odk_export("odk_central_export.zip", "farm_survey.xlsx", db)
+odk$to_match                                            # suggestions to confirm
+odk <- read_odk_export("odk_central_export.zip", "farm_survey.xlsx", db, matches = odk$to_match)
+remember_answer_matches(odk$to_match, db)               # matched automatically next time
+# Feeds bought are counted off the farm through copies tagged OFR / OFC / IP
+if (!is.null(odk$variants)) {
+  add_feed_variants(odk$variants, db)
+  odk <- read_odk_export("odk_central_export.zip", "farm_survey.xlsx", db, matches = odk$to_match)
+}
+odk$bought                                              # amounts bought vs. what the diets suggest
+write_batch_file(odk$input, db, "my_farms.xlsx")
+```
+
+`build_study_objects()` and `run_study_object()` give access to the
+intermediate steps. In iCLEANED the same steps are available on the Batch page
+(enabled with the environment variable `ICLEANED_BATCH=true`).
 
 ## Documentation
 
@@ -194,12 +239,15 @@ The documentation set is organized as:
 - [Output Contract](vignettes/output-contract.Rmd)
 - [Developer Guide](vignettes/developer-guide.Rmd)
 
+The documentation website is built from these files with `pkgdown::build_site()` (configuration in `_pkgdown.yml`, output in `docs/`).
+
 Function-level help is available in R:
 
 ```r
 ?feed_quality
 ?combineOutputs
 ?calculate_differences
+?resolve_livestock_categories
 ```
 
 ## Development Checks
@@ -207,7 +255,6 @@ Function-level help is available in R:
 Before pushing calculation or output changes:
 
 ```powershell
-Rscript -e "parse(file='R/differences.R')"
 Rscript -e "for (f in list.files('R', pattern='\\.R$', full.names=TRUE)) parse(file=f)"
 R CMD INSTALL .
 ```
@@ -233,10 +280,13 @@ The path should point to the intended local or released package version.
 ```text
 R/                 exported model functions and helpers
 man/               generated function documentation
-vignettes/         professional user and developer documentation
-inst/extdata/      bundled model parameter JSON files and example input
-data/              packaged example data and parameter artifacts
-tests/testthat/    automated tests
+vignettes/         user and developer documentation
+docs/              documentation website (pkgdown)
+inst/extdata/      model parameter JSON files read by the app, and
+                   example_input.json (example study object, Rungwe)
+auxilary_info/     reference workbooks: output data dictionary (ReadMe.xlsx) and
+                   literature benchmarks (CLEANED_benchmark_RGQ.xlsx, also
+                   shipped in the app's www/ReadMe.xlsx)
 ```
 
 ## Citation

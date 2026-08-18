@@ -12,14 +12,20 @@
 #'
 #' @param nitrogen_balance A dataframe computed using the `n_balance` function
 #'
+#' @param feed_basket_quality A dataframe computed using the `feed_quality`
+#'   function. If `NULL`, it is taken from the calling environment.
+#'
+#' @param ym_prod Logical. If `TRUE`, the methane conversion factor (Ym) of
+#'   dairy cows also depends on annual milk yield, not only on digestibility.
+#'
 #' @return list
 #'
 #' @importFrom dplyr summarise mutate rename filter
 #'
 #' @examples
 #' \dontrun{
-#' data(mufindi)
-#' data(ghg_para)
+#' para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+#' ghg_ipcc_data <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"), flatten = TRUE)
 #' feed_basket_quality <- feed_quality(para)
 #' energy_required <- energy_requirement(para,feed_basket_quality)
 #' land_required <- land_requirement(feed_basket_quality, energy_required, para)
@@ -35,7 +41,9 @@
 
 ghg_emission <- function(para, energy_required, ghg_ipcc_data, land_required, nitrogen_balance, feed_basket_quality = NULL, ym_prod=F){
 
-  livestock <- para[["livestock"]]
+  # IPCC Tier 2 categories (Ym, Bo, N loss, pasture N2O) come from these
+  # fields, not from the livestock name; see ?resolve_livestock_categories
+  livestock <- normalise_manure_systems(resolve_livestock_categories(para[["livestock"]]))
 
   seasons <- para[["seasons"]]
 
@@ -134,9 +142,14 @@ if(ym_prod == TRUE){
   ############################################################################################################################
   #Computing methane emission from manure management T2
   #Computing volatile solid excretion
-  table_m <- ghg_ipcc_data[["Table_m"]]
-
-  vs <- left_join(de1,table_m,by = "livestock_category_name")%>%
+  # Urinary energy fraction: 0.02 for swine, 0.04 for other livestock;
+  # ash content 0.08 (IPCC 2019, equation 10.24)
+  vs <- de1 %>%
+    left_join(select(livestock, livetype_code, ipcc_manure_ch4_category),
+              by = c("livestock_category_code" = "livetype_code")) %>%
+    mutate(Urinary_energy_frac = ifelse(ipcc_manure_ch4_category == "Swine", 0.02, 0.04),
+           ash_content = 0.08) %>%
+    select(-ipcc_manure_ch4_category) %>%
     mutate(volatile_solid_excretion = (((ge_intake/no_days)*(1-de))+(Urinary_energy_frac*(ge_intake/no_days)))*((1-ash_content)/18.45)) #equation 10.24
 
   #Extracting Bo
@@ -145,39 +158,36 @@ if(ym_prod == TRUE){
 
   region <- para[["region"]]
 
+# Productivity rules: buffalo follow the dairy-cow or other-cattle rule
+# according to their enteric (Tier 2) category
 productivity1 <- ym1%>%
-  mutate(productivity=ifelse(ipcc_meth_man_category == "Dairy cows"& annual_milk > 8500 & de >= 0.7,"High  productivity systems",
-                      ifelse(ipcc_meth_man_category == "Dairy cows"& annual_milk %gle% c(5000,8500) & de %gel% c(0.63,0.7),"High  productivity systems",
-                             ifelse(ipcc_meth_man_category == "Dairy cows"& annual_milk > 0 & annual_milk <= 5000 & de < 0.63,"Low  productivity systems",
-                                    ifelse(ipcc_meth_man_category == "Dairy cows"& annual_milk > 8500,"High  productivity systems",
-                                           ifelse(ipcc_meth_man_category == "Dairy cows"& annual_milk %gle% c(5000,8500),"High  productivity systems",
-                                                  ifelse(ipcc_meth_man_category == "Dairy cows"& annual_milk > 0 & annual_milk <= 5000,"Low  productivity systems",
-                                                         ifelse(ipcc_meth_man_category == "Dairy cows"& de >= 0.7,"High  productivity systems",
-                                                                ifelse(ipcc_meth_man_category == "Dairy cows"& de %gel% c(0.63,0.7),"High  productivity systems",
-                                                                       ifelse(ipcc_meth_man_category == "Dairy cows"& de < 0.63,"Low  productivity systems",
-                                                                              ifelse(ipcc_meth_man_category == "Other cattle" & de <= 0.62,"Low  productivity systems",
-                                                                                     ifelse(ipcc_meth_man_category == "Other cattle" & de < 0.72 & de > 0.62,"Low  productivity systems",
-                                                                                            ifelse(ipcc_meth_man_category == "Other cattle" & de >= 0.72 & de < 0.75,"High  productivity systems",
-                                                                                                   ifelse(ipcc_meth_man_category == "Other cattle" & de >= 0.75,"High  productivity systems",
-                                                                                                          ifelse(ipcc_meth_man_category == "Sheep"& de < 0.72,"Low  productivity systems",
-                                                                                                                 ifelse(ipcc_meth_man_category == "Sheep"& de >= 0.72,"High  productivity systems",
-                                                                                                                        ifelse(ipcc_meth_man_category == "Goats"& de < 0.72,"Low  productivity systems",
-                                                                                                                               ifelse(ipcc_meth_man_category == "Goats"& de >= 0.72,"High  productivity systems",
-                                                                                                                                      ifelse(ipcc_meth_man_category == "Swine"& de < 0.72,"Low  productivity systems",
-                                                                                                                                             ifelse(ipcc_meth_man_category == "Swine"& de >= 0.72,"High  productivity systems",NA))))))))))))))))))))
-
-  dairy_cattle <- c("Cattle - Cows (local)","Cattle - Cows (improved)","Cattle - Cows (high productive)")
-  non_dairy_cattle <- c("Cattle - Adult male","Cattle - Steers/heifers","Cattle - Steers/heifers (improved)","Cattle - Calves","Cattle - Calves (improved)")
+  mutate(productivity_category = ifelse(ipcc_manure_ch4_category == "Dairy cattle", "Dairy cows",
+                                        ifelse(ipcc_manure_ch4_category == "Buffalo",
+                                               ifelse(ipcc_ef_category_t2 == "Dairy cows", "Dairy cows", "Other cattle"),
+                                               ipcc_manure_ch4_category)))%>%
+  mutate(productivity=ifelse(productivity_category == "Dairy cows"& annual_milk > 8500 & de >= 0.7,"High  productivity systems",
+                      ifelse(productivity_category == "Dairy cows"& annual_milk %gle% c(5000,8500) & de %gel% c(0.63,0.7),"High  productivity systems",
+                             ifelse(productivity_category == "Dairy cows"& annual_milk > 0 & annual_milk <= 5000 & de < 0.63,"Low  productivity systems",
+                                    ifelse(productivity_category == "Dairy cows"& annual_milk > 8500,"High  productivity systems",
+                                           ifelse(productivity_category == "Dairy cows"& annual_milk %gle% c(5000,8500),"High  productivity systems",
+                                                  ifelse(productivity_category == "Dairy cows"& annual_milk > 0 & annual_milk <= 5000,"Low  productivity systems",
+                                                         ifelse(productivity_category == "Dairy cows"& de >= 0.7,"High  productivity systems",
+                                                                ifelse(productivity_category == "Dairy cows"& de %gel% c(0.63,0.7),"High  productivity systems",
+                                                                       ifelse(productivity_category == "Dairy cows"& de < 0.63,"Low  productivity systems",
+                                                                              ifelse(productivity_category == "Other cattle" & de <= 0.62,"Low  productivity systems",
+                                                                                     ifelse(productivity_category == "Other cattle" & de < 0.72 & de > 0.62,"Low  productivity systems",
+                                                                                            ifelse(productivity_category == "Other cattle" & de >= 0.72 & de < 0.75,"High  productivity systems",
+                                                                                                   ifelse(productivity_category == "Other cattle" & de >= 0.75,"High  productivity systems",
+                                                                                                          ifelse(productivity_category == "Sheep"& de < 0.72,"Low  productivity systems",
+                                                                                                                 ifelse(productivity_category == "Sheep"& de >= 0.72,"High  productivity systems",
+                                                                                                                        ifelse(productivity_category == "Goats"& de < 0.72,"Low  productivity systems",
+                                                                                                                               ifelse(productivity_category == "Goats"& de >= 0.72,"High  productivity systems",
+                                                                                                                                      ifelse(productivity_category == "Swine"& de < 0.72,"Low  productivity systems",
+                                                                                                                                             ifelse(productivity_category == "Swine"& de >= 0.72,"High  productivity systems",NA))))))))))))))))))))
 
   max_meth_bo <- productivity1%>%
-    mutate(ipcc_meth_man_t2 = ifelse(livetype_desc %in% dairy_cattle,"Dairy cattle",
-                                     ifelse(livetype_desc %in% non_dairy_cattle,"Other cattle",
-                                            ifelse(grepl("Buffalo",livetype_desc),"Buffalo",
-                                                   ifelse(grepl("Sheep",livetype_desc),"Sheep",
-                                                          ifelse(grepl("Goats",livetype_desc),"Goats",
-                                                                 ifelse(grepl("Pigs",livetype_desc),"Swine",NA)))))))%>%
     left_join(filter(table_10.16,Region == region),
-              by=c("ipcc_meth_man_t2" = "Category_of_animal","productivity"="Productivity_systems"))
+              by=c("ipcc_manure_ch4_category" = "Category_of_animal","productivity"="Productivity_systems"))
 
   #mcf
   climate_zone <- para[["climate_zone_2"]]
@@ -194,6 +204,9 @@ productivity1 <- ym1%>%
     left_join(table_10.17[,c(1,4)], by = c("manureman_stable"="Manure_management_systems"))%>%
     rename(mfc_stable=MCFs)%>%
     select(-de_intake,-ge_intake,-de,-er_growth,-dmi_tot)
+  # Second manure system of a place (manureman_2_*, share manure_share_2_*)
+  mcf <- manure_second_system(mcf, function(sys) table_10.17$MCFs[match(sys, table_10.17$Manure_management_systems)],
+                              "mfc_")
 
   #Emission factor for methane from manure management calculation
   eft <- left_join(vs,mcf,by=c("livestock_category_code" = "livetype_code"))%>%
@@ -203,29 +216,30 @@ productivity1 <- ym1%>%
   #Annual average nitrogen excretion rates T2
   #Nitrogen intake
   n_intake1 <- left_join(eft,cp1,by="livestock_category_code")%>%
-    mutate(n_intake = ifelse(grepl("Cattle",livetype_desc),((ge_intake/no_days)/18.45)*((cp/100)/6.25), #equation 10.32
-                             ifelse(grepl("Buffalo",livetype_desc),((ge_intake/no_days)/18.45)*((cp/100)/6.25), #equation 10.32
-                                    ifelse(grepl("Sheep",livetype_desc),((ge_intake/no_days)/18.45)*((cp/100)/6.25), #equation 10.32
-                                           ifelse(grepl("Goats",livetype_desc),((ge_intake/no_days)/18.45)*((cp/100)/6.25), #equation 10.32
-                                                  ifelse(grepl("Pigs",livetype_desc),(dmi_tot/no_days)*((cp/100)/6.25),NA)))))) #equation 10.32A
+    mutate(n_intake = ifelse(species %in% c("Cattle","Buffalo","Sheep","Goats"),((ge_intake/no_days)/18.45)*((cp/100)/6.25), #equation 10.32
+                             ifelse(species == "Pigs",(dmi_tot/no_days)*((cp/100)/6.25),NA))) #equation 10.32A
 
   #Nitrogen retention
   n_retention1 <- n_intake1%>%
-    mutate(wkg = ifelse(ipcc_meth_man_category=="Swine" & productivity == "High  productivity systems",7,
-                        ifelse(ipcc_meth_man_category=="Swine" & productivity == "Low  productivity systems",6.5,NA)),
-           ckg = ifelse(ipcc_meth_man_category=="Swine" & productivity == "High  productivity systems",1.2,
-                        ifelse(ipcc_meth_man_category=="Swine" & productivity == "Low  productivity systems",0.8,NA)),
-           n_weaned = ifelse(livetype_desc=="Pigs - lactating/pregnant sows", (0.0025*litter_size*birth_interval*body_weight*((wkg-ckg)/0.98))/lactation_length,0),#equation 10.33B
-           n_gain = ifelse(livetype_desc=="Pigs - lactating/pregnant sows",0.025*birth_interval*12.25,
-                            ifelse(livetype_desc== "Pigs - growers" & body_weight %gel% c(4,7),0.031,
-                                   ifelse(livetype_desc== "Pigs - growers" & body_weight %gel% c(7,20),0.028,
-                                          ifelse(livetype_desc== "Pigs - growers" & body_weight %gel% c(20,40),0.025,
-                                                 ifelse(livetype_desc== "Pigs - growers" & body_weight %gel% c(40,80),0.024,
-                                                        ifelse(livetype_desc== "Pigs - growers" & body_weight %gel% c(80,120),0.021,
-                                                               ifelse(livetype_desc== "Pigs - dry sows/boars",0.021,0))))))),
-           n_retained = ifelse(!grepl("Pigs",livetype_desc),ifelse(annual_growth == 0,(annual_milk*(protein_milkcontent/100))/6.38/no_days,((annual_milk*(protein_milkcontent/100))/6.38)+(((annual_growth*(268-(7.03*er_growth/annual_growth)))/1000)/6.25))/no_days,#equation 10.33
-                               ifelse(livetype_desc=="Pigs - lactating/pregnant sows",n_gain+n_weaned, #equation 10.33A
-                                      ifelse(livetype_desc== "Pigs - growers" | livetype_desc== "Pigs - dry sows/boars",(annual_growth*n_gain),0)))) #equation 10.33C
+    mutate(is_sow = species == "Pigs" & animal_class == "Lactating/pregnant sows",
+           is_grower = species == "Pigs" & animal_class == "Growers",
+           is_dry_sow_boar = species == "Pigs" & animal_class == "Dry sows/boars",
+           wkg = ifelse(ipcc_manure_ch4_category=="Swine" & productivity == "High  productivity systems",7,
+                        ifelse(ipcc_manure_ch4_category=="Swine" & productivity == "Low  productivity systems",6.5,NA)),
+           ckg = ifelse(ipcc_manure_ch4_category=="Swine" & productivity == "High  productivity systems",1.2,
+                        ifelse(ipcc_manure_ch4_category=="Swine" & productivity == "Low  productivity systems",0.8,NA)),
+           n_weaned = ifelse(is_sow, (0.0025*litter_size*birth_interval*body_weight*((wkg-ckg)/0.98))/lactation_length,0),#equation 10.33B
+           n_gain = ifelse(is_sow,0.025*birth_interval*12.25,
+                            ifelse(is_grower & body_weight %gel% c(4,7),0.031,
+                                   ifelse(is_grower & body_weight %gel% c(7,20),0.028,
+                                          ifelse(is_grower & body_weight %gel% c(20,40),0.025,
+                                                 ifelse(is_grower & body_weight %gel% c(40,80),0.024,
+                                                        ifelse(is_grower & body_weight %gel% c(80,120),0.021,
+                                                               ifelse(is_dry_sow_boar,0.021,0))))))),
+           n_retained = ifelse(species != "Pigs",ifelse(annual_growth == 0,(annual_milk*(protein_milkcontent/100))/6.38/no_days,((annual_milk*(protein_milkcontent/100))/6.38)+(((annual_growth*(268-(7.03*er_growth/annual_growth)))/1000)/6.25))/no_days,#equation 10.33
+                               ifelse(is_sow,n_gain+n_weaned, #equation 10.33A
+                                      ifelse(is_grower | is_dry_sow_boar,(annual_growth*n_gain),0))))%>% #equation 10.33C
+    select(-is_sow, -is_grower, -is_dry_sow_boar)
 
 
   #Nitrogen excretion rates
@@ -248,6 +262,8 @@ productivity1 <- ym1%>%
     left_join(table_10.21[,c(1,4)],by = c("manureman_onfarm_grazing"="system"))%>%
     mutate(direct_nitrous_oxide_factor = ifelse(is.na(direct_nitrous_oxide_factor),0,direct_nitrous_oxide_factor))%>%
     rename(ef3_onfarm_grazing=direct_nitrous_oxide_factor)%>%
+    manure_second_system(function(sys) { v <- table_10.21$direct_nitrous_oxide_factor[match(sys, table_10.21$system)]; ifelse(is.na(v), 0, v) },
+                         "ef3_")%>%
     mutate(direct_N2O_emission = ((n_excretion_rate*time_in_stable*ef3_stable)+(n_excretion_rate*time_in_non_roofed_enclosure*ef3_non_roofed_enclosure)+(n_excretion_rate*time_in_offfarm_grazing*ef3_offfarm_grazing)+(n_excretion_rate*time_in_onfarm_grazing*ef3_onfarm_grazing))*(44/28))#Equation 10.25
 
   #################################################################################################################################
@@ -256,9 +272,7 @@ productivity1 <- ym1%>%
   table_10.22 <- ghg_ipcc_data[["Table 10.22"]]
 
   FracGasMS <- direct_N2O%>%
-    mutate(indirect_n20_animal = ifelse(livetype_desc %in% dairy_cattle,"Dairy Cow",
-                                        ifelse(livetype_desc %in% non_dairy_cattle,"Other Cattle",
-                                               ifelse(grepl("Pigs",livetype_desc),"Swine","Other animals"))),
+    mutate(indirect_n20_animal = ipcc_n_loss_category,
            ef4 = ghg_ipcc_data[["table_11.1_&_table_11.3"]][ghg_ipcc_data[["table_11.1_&_table_11.3"]]$emission_factors=="EF4",4])%>%
     left_join(table_10.22[,1:6],by = c("indirect_n20_animal"="livestock_category","manureman_stable"="system"))%>%
     rename(FracGasMS_stable = FracGas_MS,
@@ -284,6 +298,12 @@ productivity1 <- ym1%>%
            Frac_leach_MS_offfarm_grazing = ifelse(is.na(Frac_leach_MS_offfarm_grazing),0,Frac_leach_MS_offfarm_grazing),
            FracGasMS_onfarm_grazing = ifelse(is.na(FracGasMS_onfarm_grazing),0,FracGasMS_onfarm_grazing),
            Frac_leach_MS_onfarm_grazing = ifelse(is.na(Frac_leach_MS_onfarm_grazing),0,Frac_leach_MS_onfarm_grazing))
+  frac_of <- function(field) function(sys, animal) {
+    v <- table_10.22[[field]][match(paste(animal, sys), paste(table_10.22$livestock_category, table_10.22$system))]
+    ifelse(is.na(v), 0, v)
+  }
+  FracGasMS <- manure_second_system(FracGasMS, frac_of("FracGas_MS"), "FracGasMS_", by_animal = "indirect_n20_animal")
+  FracGasMS <- manure_second_system(FracGasMS, frac_of("Frac_leach_MS"), "Frac_leach_MS_", by_animal = "indirect_n20_animal")
 
   #computing indirect N2O emissions
   indirect_N2O <- FracGasMS%>%
@@ -306,20 +326,12 @@ productivity1 <- ym1%>%
 
   ###############################################################################################################################
   #last calc in manure sheet
-  cattle_pig_poultry <- c("Cattle - Cows (local)","Cattle - Cows (improved)","Cattle - Cows (high productive)",
-                          "Cattle - Adult male","Cattle - Steers/heifers","Cattle - Steers/heifers (improved)",
-                          "Cattle - Calves","Cattle - Calves (improved)", "Buffalo - Cows","Buffalo - Steers/heifers",
-                          "Buffalo - Steers/heifers","Buffalo - Calves","Pigs - lactating/pregnant sows",
-                          "Pigs - dry sows/boars","Pigs - growers")
-  sheep_and_other <- c("Sheep - Ewes","Goats - Does","Sheep - Breeding Rams","Goats - Breeding Bucks","Sheep - Fattening Rams",
-                       "Goats - Fattening Bucks","Sheep - Lambs","Goats - Kids")
-
-  cattle_pig_poultry_n_pasture <- dplyr::filter(total_n_from_manure_mgmt,livetype_desc%in%cattle_pig_poultry)%>%
+  cattle_pig_poultry_n_pasture <- dplyr::filter(total_n_from_manure_mgmt,ipcc_prp_category %in% "Cattle, pigs and poultry")%>%
     mutate(onfarm = n_excretion_rate*time_in_onfarm_grazing,
            off_farm = n_excretion_rate*time_in_offfarm_grazing)%>%
     select(livestock_category_code,livetype_desc,onfarm,off_farm)
 
-  sheep_and_other_n_pasture <- dplyr::filter(total_n_from_manure_mgmt,livetype_desc%in%sheep_and_other)%>%
+  sheep_and_other_n_pasture <- dplyr::filter(total_n_from_manure_mgmt,ipcc_prp_category %in% "Sheep and other animals")%>%
     mutate(onfarm = n_excretion_rate*time_in_onfarm_grazing,
            off_farm = n_excretion_rate*time_in_offfarm_grazing)%>%
     select(livestock_category_code,livetype_desc,onfarm,off_farm)
@@ -572,6 +584,8 @@ productivity1 <- ym1%>%
       soil_type_scaling_factor <- ghg_ipcc_data[["table_5.11"]]$soil_type_scaling_factor
 
 
+      # the app's wording of the rice settings -> the keys of IPCC tables 5.12-5.14
+      rice <- rice_ipcc_keys(rice, ghg_ipcc_data)
       ghg_rice <- rice%>%
         left_join(ghg_ipcc_data[["table_5.12"]],by="ecosystem_type")%>%
         left_join(ghg_ipcc_data[["table_5.13"]],by="water_regime")%>%
@@ -612,3 +626,70 @@ productivity1 <- ym1%>%
 
 } #end of ghg function
 
+
+
+# Two manure management systems in one place ---------------------------------------------
+# A place (stable, enclosure, on-farm or off-farm grazing) may have a second
+# system (manureman_2_<place>) for a share of its dung (manure_share_2_<place>,
+# 0-1). The emission equations are linear in the factor of each place, so the
+# factor of the place is the share-weighted mean of the factors of the two
+# systems: the same as treating the two parts of the dung separately.
+manure_places <- c("stable", "non_roofed_enclosure", "onfarm_grazing", "offfarm_grazing")
+
+manure_second_system <- function(df, factor_of, prefix, by_animal = NULL) {
+  for (place in manure_places) {
+    share_col <- paste0("manure_share_2_", place)
+    system_col <- paste0("manureman_2_", place)
+    target <- paste0(prefix, place)
+    if (!share_col %in% names(df) || !system_col %in% names(df) || !target %in% names(df)) next
+    share <- suppressWarnings(as.numeric(df[[share_col]]))
+    use <- !is.na(share) & share > 0 & !is.na(df[[system_col]]) & df[[system_col]] != ""
+    if (!any(use)) next
+    share <- pmin(share, 1)
+    second <- if (is.null(by_animal)) factor_of(df[[system_col]]) else factor_of(df[[system_col]], df[[by_animal]])
+    df[[target]][use] <- (1 - share[use]) * df[[target]][use] + share[use] * second[use]
+  }
+  df
+}
+
+
+# Rice settings (ecosystem type, water regime, organic amendment) ----------------
+# The values must be the keys of IPCC tables 5.12, 5.13 and 5.14. Older wording
+# (the single-farm app's dropdowns) is mapped to them.
+rice_option_fields <- c(ecosystem_type = "table_5.12", water_regime = "table_5.13", organic_amendment = "table_5.14")
+
+#' Allowed values of the rice settings
+#'
+#' @param ghg_ipcc_data The IPCC parameters (`ghg_parameters.json`); read from
+#'   the package when `NULL`.
+#' @return A named list: `ecosystem_type`, `water_regime`, `organic_amendment`.
+#' @export
+rice_options <- function(ghg_ipcc_data = NULL) {
+  if (is.null(ghg_ipcc_data)) {
+    ghg_ipcc_data <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"))
+  }
+  lapply(rice_option_fields, function(t) unique(as.character(ghg_ipcc_data[[t]][[names(rice_option_fields)[rice_option_fields == t]]])))
+}
+
+rice_option_aliases <- c(
+  "irrigatedcontinuouslyflooded" = "Irrigated-Continuously flooded",
+  "irrigatedintermittentlyfloodedsingleaeration" = "intermittently flooded-single aeration",
+  "irrigatedintermittentlyfloodedmultipleaeration" = "Intermittently flooded-multiple aeration",
+  "rainfedregularrainfed" = "Rainfed-regular rainfed",
+  "rainfeddroughtprone" = "Rainfed-drought prone",
+  "rainfeddeepwater" = "Rainfed-deep water",
+  "floodedpreseason>30" = "flooded pre-season (>30 days)"
+)
+
+rice_ipcc_keys <- function(df, ghg_ipcc_data) {
+  norm <- function(x) gsub("[^a-z0-9<>]", "", tolower(x))   # (< and > kept: "<30 days" is not ">30 days")
+  opts <- rice_options(ghg_ipcc_data)
+  for (f in intersect(names(opts), names(df))) {
+    v <- as.character(df[[f]])
+    key <- opts[[f]][match(norm(v), norm(opts[[f]]))]
+    alias <- unname(rice_option_aliases[norm(v)])
+    key[is.na(key) & alias %in% opts[[f]]] <- alias[is.na(key) & alias %in% opts[[f]]]
+    df[[f]] <- ifelse(is.na(key), v, key)
+  }
+  df
+}

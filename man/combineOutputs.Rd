@@ -17,8 +17,7 @@ combineOutputs(
   soil_carbon,
   ghg_emission,
   filePath,
-  readMe,
-  benchMark
+  primary_excel = NULL
 )
 }
 \arguments{
@@ -45,6 +44,9 @@ combineOutputs(
 \item{ghg_emission}{A list computed using the `n_balance` ghg_emission}
 
 \item{filePath}{A path to where the JSON is to be saved}
+
+\item{primary_excel}{Path to the app's read-me workbook. When given, the
+function returns the compact outputs used by the iCLEANED app.}
 }
 \value{
 saved JSON file
@@ -54,8 +56,8 @@ It generates a JSON file of all CLEANED model computation.
 }
 \examples{
 \dontrun{
-data(para)
-data(ghg_para)
+para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+ghg_para <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"), flatten = TRUE)
 feed_basket_quality <- feed_quality(para)
 energy_required <- energy_requirement(para,feed_basket_quality)
 land_required <- land_requirement(feed_basket_quality, energy_required, para)
@@ -67,7 +69,7 @@ biomass <- biomass_calculation(para, land_required)
 soil_carbon <- soil_organic_carbon(para, land_required, biomass)
 ghg_emission <- ghg_emission(para,energy_required,ghg_para,land_required,nitrogen_balance)
 combineOutputs(para,feed_basket_quality,energy_required,land_required,soil_erosion,water_required,
-nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emission,filePath,readMe,benchMark)
+nitrogen_balance,livestock_productivity,biomass,soil_carbon,ghg_emission,filePath)
 }
 
 }

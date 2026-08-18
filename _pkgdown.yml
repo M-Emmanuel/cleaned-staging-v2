@@ -33,12 +33,40 @@ reference:
       - calculate_differences
       - clean_plotting
       - compare_scenario
-  - title: Utilities and datasets
+  - title: Livestock classification
     contents:
-      - season_length
-      - mufindi
-      - ghg_para
-      - stock_change_para
+      - livestock_species_classes
+      - ipcc_livestock_categories
+      - resolve_livestock_categories
+      - normalise_manure_systems
+  - title: Batch processing
+    desc: Describe many farms in one Excel file, check it and build one study object per farm.
+    contents:
+      - write_batch_template
+      - batch_dictionary
+      - read_parameter_database
+      - read_batch_input
+      - validate_batch_input
+      - build_study_objects
+      - write_study_objects
+      - batch_calf_codes
+      - run_study_object
+      - run_batch
+      - compare_batches
+      - write_odk_form
+      - read_odk_export
+      - is_odk_export
+      - write_batch_file
+      - batch_manure_practices
+      - batch_match_suggestions
+      - remember_answer_matches
+      - build_feed_library
+      - add_matches_to_database
+      - add_feed_variants
+      - build_batch_database
+      - is_batch_database
+      - batch_normalise_text
+      - batch_survey_conversions
 
 articles:
   - title: User and developer guides

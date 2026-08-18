@@ -14,7 +14,7 @@ Livestock category name, \code{herd_composition}: Herd composition (number), \co
 Average annual growth per animal (kilogram), \code{body_weight}: Average Body weight (kilogram),
 \code{birth_interval}: Birth interval (years), \code{carcass_fraction}: Carcass fraction, \code{energy_meatcontent}:
 Energy content meat, \code{protein_meatcontent}: Protein content meat (percent), \code{annual_milk}:
-Average annual milk (kilogram), \code{fat_content}: Fat content milk (percent), \code{protein_milkcontent}:
+Average annual milk (kilogram), \code{fat_milkcontent}: Fat content milk (percent), \code{protein_milkcontent}:
 Protein content milk (percent).}
 
 \item{energy_required}{A list computed using the `energy_required` function}
@@ -27,7 +27,7 @@ It computes land productivity. Products include milk and meat.
 }
 \examples{
 \dontrun{
-data(mufindi)
+para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
 feed_basket_quality <- feed_quality(para)
 energy_required <- energy_requirement(para,feed_basket_quality)
 land_required <- land_requirement(feed_basket_quality, energy_required, para)

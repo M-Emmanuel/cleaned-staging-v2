@@ -26,6 +26,9 @@
 #'
 #' @param filePath A path to where the JSON is to be saved
 #'
+#' @param primary_excel Path to the app's read-me workbook. When given, the
+#'   function returns the compact outputs used by the iCLEANED app.
+#'
 #' @return saved JSON file
 #'
 #' @importFrom jsonlite toJSON
@@ -34,8 +37,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(para)
-#' data(ghg_para)
+#' para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+#' ghg_para <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"), flatten = TRUE)
 #' feed_basket_quality <- feed_quality(para)
 #' energy_required <- energy_requirement(para,feed_basket_quality)
 #' land_required <- land_requirement(feed_basket_quality, energy_required, para)
@@ -486,18 +489,36 @@ ghg_fertilizer_by_crop <- if (
     sum(clean_num(energy_annual[[col]])[idx], na.rm = TRUE)
   }
 
-  is_cattle <- grepl("Cattle", livestock_names, ignore.case = TRUE)
-  is_buffalo <- grepl("Buffalo", livestock_names, ignore.case = TRUE)
-  is_sheep <- grepl("Sheep", livestock_names, ignore.case = TRUE)
-  is_goat <- grepl("Goat", livestock_names, ignore.case = TRUE)
-  is_pig <- grepl("Pig|Swine", livestock_names, ignore.case = TRUE)
+  # Species come from the livestock 'species' field (matched by name); names
+  # that cannot be matched fall back to the species word in the name
+  species_lookup <- tryCatch({
+    lv <- resolve_livestock_categories(para[["livestock"]])
+    stats::setNames(lv$species, lv$livetype_desc)
+  }, error = function(e) NULL)
+  species_of <- function(nm) {
+    sp <- if (is.null(species_lookup)) rep(NA_character_, length(nm)) else unname(species_lookup[nm])
+    guess <- ifelse(grepl("Cattle", nm, ignore.case = TRUE), "Cattle",
+             ifelse(grepl("Buffalo", nm, ignore.case = TRUE), "Buffalo",
+             ifelse(grepl("Sheep", nm, ignore.case = TRUE), "Sheep",
+             ifelse(grepl("Goat", nm, ignore.case = TRUE), "Goats",
+             ifelse(grepl("Pig|Swine", nm, ignore.case = TRUE), "Pigs", NA_character_)))))
+    ifelse(is.na(sp), guess, sp)
+  }
+  livestock_species <- species_of(livestock_names)
+  energy_species <- species_of(energy_livestock_names)
+
+  is_cattle <- livestock_species %in% "Cattle"
+  is_buffalo <- livestock_species %in% "Buffalo"
+  is_sheep <- livestock_species %in% "Sheep"
+  is_goat <- livestock_species %in% "Goats"
+  is_pig <- livestock_species %in% "Pigs"
   is_other <- !is_cattle
 
-  is_energy_cattle <- grepl("Cattle", energy_livestock_names, ignore.case = TRUE)
-  is_energy_buffalo <- grepl("Buffalo", energy_livestock_names, ignore.case = TRUE)
-  is_energy_sheep <- grepl("Sheep", energy_livestock_names, ignore.case = TRUE)
-  is_energy_goat <- grepl("Goat", energy_livestock_names, ignore.case = TRUE)
-  is_energy_pig <- grepl("Pig|Swine", energy_livestock_names, ignore.case = TRUE)
+  is_energy_cattle <- energy_species %in% "Cattle"
+  is_energy_buffalo <- energy_species %in% "Buffalo"
+  is_energy_sheep <- energy_species %in% "Sheep"
+  is_energy_goat <- energy_species %in% "Goats"
+  is_energy_pig <- energy_species %in% "Pigs"
 
   cattle_milk_kg <- sum_livestock_where("total_milk", is_cattle)
   cattle_meat_kg <- sum_livestock_where("meat_production_animal", is_cattle)

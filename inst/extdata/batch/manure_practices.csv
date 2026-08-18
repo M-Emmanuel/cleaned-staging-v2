@@ -1,0 +1,12 @@
+practice_code,part,label,manureman_desc,keywords
+heap,out,It is kept in an open heap or pile,Solid storage,heap;pile;dump;stack;removed;open
+heap_covered,out,It is kept in a heap that is covered or pressed down,Solid storage - Covered/compacted,covered;cover;plastic;compact;pressed;tarpaulin
+compost,out,It is composted (heap turned now and then),Composting - Unfrequent turning,compost;turned;turning;mixed with leaves;mulch
+spread,out,It is spread on the fields the same or the next day,Daily spread,spread;field;daily;same day;immediately;fresh;garden
+biogas,out,It goes into a biogas digester,"Anaer digester, High leak, open stor, LQ tec",biogas;digester;gas
+fuel,out,It is dried and burned as fuel,Burned for fuel,burn;burned;fuel;cooking;dung cake;fire;dried
+slurry_short,out,It is washed into a pit or tank as liquid and emptied within a month,Liquid/Slurry Pit below animals 1 Month,slurry;liquid;pit;tank;washed;water
+slurry_long,out,It is washed into a pit or tank as liquid and kept longer than a month,Liquid/Slurry Pit below animals 3 Month,lagoon;pond;stored liquid;months
+floor,stays,It stays where it falls and builds up (floor of the stable or boma),Dry lot,boma;kraal;floor;enclosure;left;stays;builds up;accumulate;not removed;trampled
+bedding_short,stays,"It is mixed with straw or bedding under the animals, cleaned out within a month",Cattle and swine deep bedding < 1 month,bedding;straw;litter;cleaned;weekly
+bedding,stays,"It is mixed with straw or bedding under the animals, kept longer than a month",Cattle and swine deep bedding > 1 month,bedding;straw;litter;deep;months

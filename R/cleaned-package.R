@@ -6,16 +6,12 @@
 #' balance, water use, biomass, soil organic carbon, greenhouse gas emissions,
 #' output aggregation, and scenario comparison modules.
 #'
-#' The package is designed for two workflows:
+#' The package is used by the iCLEANED application, which converts app
+#' scenarios into model input objects and receives compact plot-ready outputs.
 #'
-#' * The iCLEANED application workflow, where app scenarios are converted into
-#'   model input objects and compact plot-ready outputs are returned.
-#' * Batch processing workflows, where multiple scenario JSON files are run,
-#'   exported to Excel/JSON, and compared using scalar indicators.
-#'
-#' Start with `vignette("cleaned-overview", package = "cleaned")`,
-#' `vignette("input-contract", package = "cleaned")`, and
-#' `vignette("output-contract", package = "cleaned")`.
+#' Livestock types are calculated from their `species`, `animal_class` and
+#' IPCC Tier 2 category fields; see [livestock_species_classes] and
+#' [ipcc_livestock_categories].
 #'
 #' @keywords internal
 "_PACKAGE"

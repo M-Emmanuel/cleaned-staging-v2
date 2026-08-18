@@ -13,16 +13,40 @@ balance, water use, biomass, soil organic carbon, greenhouse gas emissions,
 output aggregation, and scenario comparison modules.
 }
 \details{
-The package is designed for two workflows:
+The package is used by the iCLEANED application, which converts app
+scenarios into model input objects and receives compact plot-ready outputs.
+
+Livestock types are calculated from their `species`, `animal_class` and
+IPCC Tier 2 category fields; see [livestock_species_classes] and
+[ipcc_livestock_categories].
+}
+\seealso{
+Useful links:
 \itemize{
-\item The iCLEANED application workflow, where app scenarios are converted
-into model input objects and compact plot-ready outputs are returned.
-\item Batch processing workflows, where multiple scenario JSON files are run,
-exported to Excel/JSON, and compared using scalar indicators.
+  \item \url{https://github.com/CIAT/cleaned}
+  \item \url{https://ciat.github.io/cleaned/}
+  \item Report bugs at \url{https://github.com/ciat/cleaned/issues}
 }
 
-Start with \code{vignette("cleaned-overview", package = "cleaned")},
-\code{vignette("input-contract", package = "cleaned")}, and
-\code{vignette("output-contract", package = "cleaned")}.
+}
+\author{
+\strong{Maintainer}: Emmanuel Mwema \email{e.mwema@cgiar.org}
+
+Authors:
+\itemize{
+  \item Stephen Oloo \email{oloostephen08@gmail.com} (\href{https://orcid.org/0000-0003-2314-3146}{ORCID})
+  \item John Mutua
+}
+
+Other contributors:
+\itemize{
+  \item Jessica Mukiri [contributor]
+  \item An Notenbaert [contributor]
+  \item Birthe Paul [contributor]
+  \item Rein Van der Hoek [contributor]
+  \item Pete Steward [contributor]
+  \item Ahmed Jou [contributor]
+}
+
 }
 \keyword{internal}

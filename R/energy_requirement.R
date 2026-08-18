@@ -17,9 +17,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(mufindi)
-#' feed_basket_quality <- feed_quality(mufindi)
-#' energy_requirement(mufindi,feed_basket_quality,energy_parameters)
+#' para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+#' energy_parameters <- jsonlite::fromJSON(system.file("extdata", "energy_parameters.json", package = "cleaned"), flatten = TRUE)
+#' feed_basket_quality <- feed_quality(para)
+#' energy_requirement(para,feed_basket_quality,energy_parameters)
 #' }
 #'
 #' @export
@@ -27,9 +28,13 @@
 energy_requirement <- function(para, feed_basket_quality,energy_parameters){
   #get the seasons
   seasons <- para[["seasons"]]
-  livestock <- para[["livestock"]]%>%
+  # Equations are chosen by species and animal class, not by livestock name;
+  # see ?livestock_species_classes
+  livestock <- resolve_livestock_categories(para[["livestock"]])%>%
     rename(livestock_category_code=livetype_code,
-                  livestock_category_name=livetype_desc)
+                  livestock_category_name=livetype_desc)%>%
+    mutate(is_cattle_buffalo = species %in% c("Cattle", "Buffalo"),
+           is_lactating_sow = species == "Pigs" & animal_class == "Lactating/pregnant sows")
   no_days <- 365
 
 
@@ -38,82 +43,53 @@ energy_requirement <- function(para, feed_basket_quality,energy_parameters){
   #Maintenance energy
   table_10.4 <- energy_parameters[["Table 10.4"]]
 
-  Cattle_n_Buffalo <- c("Cattle - Steers/heifers",
-                      "Cattle - Steers/heifers (improved)",
-                      "Cattle - Calves",
-                      "Cattle - Calves (improved)",
-                      "Buffalo - Steers/heifers",
-                      "Buffalo - Calves")
-
-  Cattle_n_Buffalo_lactating_cows <- c("Cattle - Cows (local)",
-                                     "Cattle - Cows (improved)",
-                                     "Cattle - Cows (high productive)",
-                                     "Buffalo - Cows")
-
-  Cattle_n_Buffalo_bulls <- c("Cattle - Adult male",
-                            "Buffalo - Adult male")
-
-  Sheep_lamb_to_one_year <- c("Sheep - Lambs")
-
-  Sheep_older_than_one_year <- c("Sheep - Ewes",
-                               "Sheep - Breeding Rams",
-                               "Sheep - Fattening Rams")
-  Goats <- c("Goats - Does",
-             "Goats - Breeding Bucks",
-             "Goats - Fattening Bucks",
-             "Goats - Kids")
-
-  Pigs <- c("Pigs - lactating/pregnant sows",
-            "Pigs - dry sows/boars",
-            "Pigs - growers")
-
   maintenance_er <- livestock%>%
-    mutate(maintenance_cat = ifelse(livestock_category_name%in%Cattle_n_Buffalo,"Cattle_Buffalo",
-                                    ifelse(livestock_category_name%in%Cattle_n_Buffalo_lactating_cows,"Cattle_Buffalo_lactating_cows",
-                                           ifelse(livestock_category_name%in%Cattle_n_Buffalo_bulls,"Cattle_Buffalo_bulls",
-                                                  ifelse(livestock_category_name%in%Sheep_lamb_to_one_year,"Sheep_lamb_to_1_year",
-                                                         ifelse(livestock_category_name%in%Sheep_older_than_one_year,"Sheep_older_than_1_year",
-                                                                ifelse(livestock_category_name%in%Goats,"Goats",
-                                                                       ifelse(livestock_category_name%in%Pigs,"Pigs",NA))))))))%>%
+    mutate(maintenance_cat = ifelse(is_cattle_buffalo & animal_class == "Young stock","Cattle_Buffalo",
+                                    ifelse(is_cattle_buffalo & animal_class == "Cows","Cattle_Buffalo_lactating_cows",
+                                           ifelse(is_cattle_buffalo & animal_class == "Adult males","Cattle_Buffalo_bulls",
+                                                  ifelse(species == "Sheep" & animal_class == "Lambs","Sheep_lamb_to_1_year",
+                                                         ifelse(species == "Sheep","Sheep_older_than_1_year",
+                                                                ifelse(species == "Goats","Goats",
+                                                                       ifelse(species == "Pigs","Pigs",NA))))))))%>%
     left_join(table_10.4,by = c("maintenance_cat" = "animal_category"))%>%
     mutate(er_maintenance = maintenance_cfi*(body_weight**0.75)) #equation 10.3
 
   #Activity energy
   activity_er <- maintenance_er%>%
-    mutate(er_activity = ifelse(livestock_category_name%in%c(Cattle_n_Buffalo,Cattle_n_Buffalo_lactating_cows,Cattle_n_Buffalo_bulls),er_maintenance*((0*time_in_stable)+(0.17*time_in_onfarm_grazing)+(0.17*time_in_non_roofed_enclosure)+(0.36*time_in_offfarm_grazing)), #equation 10.4
-                                ifelse(livestock_category_name == "Sheep - Ewes",body_weight*((0.0096*time_in_stable)+(0.0096*time_in_non_roofed_enclosure)+(0.0107*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)), #equation 10.5
-                                       ifelse(livestock_category_name%in%c("Sheep - Breeding Rams","Sheep - Fattening Rams","Sheep - Lambs"),body_weight*((0.0067*time_in_stable)+(0.0067*time_in_non_roofed_enclosure)+(0.0107*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)),  #equation 10.5
-                                              ifelse(livestock_category_name == "Goats - Does", body_weight*((0.0096*time_in_stable)+(0.0096*time_in_non_roofed_enclosure)+(0.019*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)),  #equation 10.5
-                                                     ifelse(livestock_category_name%in%c("Goats - Breeding Bucks","Goats - Fattening Bucks","Goats - Kids"),body_weight*((0.0067*time_in_stable)+(0.0067*time_in_non_roofed_enclosure)+(0.019*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)),  #equation 10.5
+    mutate(er_activity = ifelse(is_cattle_buffalo,er_maintenance*((0*time_in_stable)+(0.17*time_in_onfarm_grazing)+(0.17*time_in_non_roofed_enclosure)+(0.36*time_in_offfarm_grazing)), #equation 10.4
+                                ifelse(species == "Sheep" & animal_class == "Ewes",body_weight*((0.0096*time_in_stable)+(0.0096*time_in_non_roofed_enclosure)+(0.0107*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)), #equation 10.5
+                                       ifelse(species == "Sheep",body_weight*((0.0067*time_in_stable)+(0.0067*time_in_non_roofed_enclosure)+(0.0107*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)),  #equation 10.5
+                                              ifelse(species == "Goats" & animal_class == "Does", body_weight*((0.0096*time_in_stable)+(0.0096*time_in_non_roofed_enclosure)+(0.019*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)),  #equation 10.5
+                                                     ifelse(species == "Goats",body_weight*((0.0067*time_in_stable)+(0.0067*time_in_non_roofed_enclosure)+(0.019*time_in_onfarm_grazing)+(0.024*time_in_offfarm_grazing)),  #equation 10.5
                                                             0))))))
 
   #Growth energy
   growth_er <- activity_er%>%
-    mutate(er_growth = ifelse(livestock_category_name%in%Pigs,annual_growth*45/no_days, #this equation is not explained
-                              ifelse(livestock_category_name%in%Cattle_n_Buffalo_lactating_cows,22.02*((body_weight/(0.8*adult_weight))**0.75)*((annual_growth/no_days)**1.097), #equation 10.6 cows
-                                     ifelse(livestock_category_name%in%Cattle_n_Buffalo,22.02*((body_weight/(1*adult_weight))**0.75)*((annual_growth/no_days)**1.097), #equation 10.6 castrates
-                                            ifelse(livestock_category_name%in%Cattle_n_Buffalo_bulls,22.02*((body_weight/(1.2*adult_weight))**0.75)*((annual_growth/no_days)**1.097), #equation 10.6 bulls
-                                                   ifelse(livestock_category_name%in%Goats,(annual_growth*(5+(0.5*0.33*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 goats
-                                                          ifelse(livestock_category_name == "Sheep - Ewes",(annual_growth*(2.1+(0.5*0.45*(body_weight_weaning+body_weight_year_one))))/no_days,  #equation 10.7 sheep - ewes
-                                                                 ifelse(livestock_category_name == "Sheep - Breeding Rams",(annual_growth*(2.5+(0.5*0.35*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 sheep - intact males
-                                                                        ifelse(livestock_category_name == "Sheep - Fattening Rams",(annual_growth*(4.4+(0.5*0.32*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 sheep - castrates
-                                                                               ifelse(livestock_category_name == "Sheep - Lambs",(annual_growth*(2.3+(0.5*0.4*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 sheep - lambs
+    mutate(er_growth = ifelse(species == "Pigs",annual_growth*45/no_days, #this equation is not explained
+                              ifelse(is_cattle_buffalo & animal_class == "Cows",22.02*((body_weight/(0.8*adult_weight))**0.75)*((annual_growth/no_days)**1.097), #equation 10.6 cows
+                                     ifelse(is_cattle_buffalo & animal_class == "Young stock",22.02*((body_weight/(1*adult_weight))**0.75)*((annual_growth/no_days)**1.097), #equation 10.6 castrates
+                                            ifelse(is_cattle_buffalo & animal_class == "Adult males",22.02*((body_weight/(1.2*adult_weight))**0.75)*((annual_growth/no_days)**1.097), #equation 10.6 bulls
+                                                   ifelse(species == "Goats",(annual_growth*(5+(0.5*0.33*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 goats
+                                                          ifelse(species == "Sheep" & animal_class == "Ewes",(annual_growth*(2.1+(0.5*0.45*(body_weight_weaning+body_weight_year_one))))/no_days,  #equation 10.7 sheep - ewes
+                                                                 ifelse(species == "Sheep" & animal_class == "Breeding rams",(annual_growth*(2.5+(0.5*0.35*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 sheep - intact males
+                                                                        ifelse(species == "Sheep" & animal_class == "Fattening rams",(annual_growth*(4.4+(0.5*0.32*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 sheep - castrates
+                                                                               ifelse(species == "Sheep" & animal_class == "Lambs",(annual_growth*(2.3+(0.5*0.4*(body_weight_weaning+body_weight_year_one))))/no_days, #equation 10.7 sheep - lambs
                                                                                       0))))))))),
            er_growth = ifelse(!is.finite(er_growth),0,er_growth))
 
   #Lactation energy
   lactation_er <- growth_er%>%
-    mutate(ev = ifelse(livestock_category_name %in% Cattle_n_Buffalo_lactating_cows, 1.47+(0.40*fat_milkcontent),
-                       ifelse(livestock_category_name == "Sheep - Ewes",4.6,
-                              ifelse(livestock_category_name == "Goats - Does",3,0))),
-           er_lact = ifelse(livestock_category_name%in%c("Sheep - Ewes","Goats - Does") & annual_milk == 0,5*(body_weight_weaning/no_days)*ev,  #equation 10.10
-                                ifelse(livestock_category_name=="Pigs - lactating/pregnant sows",(((piglets_relying_on_milk/100)*lactation_length*((6.83*litter_size*lw_gain_piglets)-(0.125*litter_size)))*4.2)/no_days/birth_interval, #NRC 1998
+    mutate(ev = ifelse(is_cattle_buffalo & animal_class == "Cows", 1.47+(0.40*fat_milkcontent),
+                       ifelse(species == "Sheep" & animal_class == "Ewes",4.6,
+                              ifelse(species == "Goats" & animal_class == "Does",3,0))),
+           er_lact = ifelse(animal_class %in% c("Ewes","Does") & annual_milk == 0,5*(body_weight_weaning/no_days)*ev,  #equation 10.10
+                                ifelse(is_lactating_sow,(((piglets_relying_on_milk/100)*lactation_length*((6.83*litter_size*lw_gain_piglets)-(0.125*litter_size)))*4.2)/no_days/birth_interval, #NRC 1998
                                        (annual_milk*ev)/no_days)), #equation 10.8 & equation 10.9
            er_lactation = ifelse(!is.finite(er_lact),0,er_lact))
 
   #Pregnancy energy
   pregnancy_er <- lactation_er%>%
-    mutate(er_preg = ifelse(livestock_category_name=="Pigs - lactating/pregnant sows",(171/no_days)/birth_interval,
+    mutate(er_preg = ifelse(is_lactating_sow,(171/no_days)/birth_interval,
                                  er_maintenance*(0.1/birth_interval)),  #equation 10.13
            er_pregnancy = ifelse(!is.finite(er_preg),0,er_preg))
 
@@ -130,10 +106,13 @@ energy_requirement <- function(para, feed_basket_quality,energy_parameters){
   #Computing Gross Energy and DMI
   #calculate lactation cp for small ruminants and pigs
 lactation_cp <- wool_er %>%
-  mutate(cp_lactation = ifelse(livestock_category_name %in% c("Sheep - Ewes", "Goats - Does"), cp_maintenance * 2 * lactation_length,  # NRC 2007
-      ifelse(livestock_category_name == "Pigs - lactating/pregnant sows", (1.1 * 0.022 * lw_gain_piglets * litter_size - 0.0064) * lactation_length * proportion_growth_piglets_milk,  # NRC 1998
+  mutate(cp_lactation = ifelse(animal_class %in% c("Ewes", "Does"), cp_maintenance * 2 * lactation_length,  # NRC 2007
+      ifelse(is_lactating_sow, (1.1 * 0.022 * lw_gain_piglets * litter_size - 0.0064) * lactation_length * proportion_growth_piglets_milk,  # NRC 1998
         0 )),
-    cp_lactation = ifelse(!is.finite(cp_lactation), 0, cp_lactation))
+    cp_lactation = ifelse(!is.finite(cp_lactation), 0, cp_lactation))%>%
+  # drop helper columns and IPCC categories that were only filled in here
+  select(-is_cattle_buffalo, -is_lactating_sow,
+         -dplyr::any_of(setdiff(names(ipcc_livestock_categories), names(para[["livestock"]]))))
 
   #Compute annual energy and protein required
   annual_requirement <- lactation_cp%>%

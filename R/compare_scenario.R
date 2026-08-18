@@ -12,8 +12,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(mufindi)
-#' data(ghg_para)
+#' para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+#' ghg_para <- jsonlite::fromJSON(system.file("extdata", "ghg_parameters.json", package = "cleaned"), flatten = TRUE)
 #' feed_basket_quality <- feed_quality(para)
 #' energy_required <- energy_requirement(para,feed_basket_quality)
 #' land_required <- land_requirement(feed_basket_quality, energy_required, para)
@@ -26,7 +26,6 @@
 #' ghg_emissions <- ghg_emission(para,energy_required,ghg_para,land_required,nitrogen_balance)
 #' combineOutputs(para,feed_basket_quality,energy_required,land_required,soil_erosion,water_required,
 #' nitrogen_balance,livestock_productivity,economics,biomass,soil_carbon,ghg_emissions,filePath)
-#' calculate_differences(outFile,...)
 #' clean_plotting(outFile,oDir)
 #' compare_scenario(baseRun, outFile, oDir2)
 #' }

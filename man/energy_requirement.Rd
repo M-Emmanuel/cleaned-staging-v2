@@ -22,9 +22,10 @@ the `feed_quality` function
 }
 \examples{
 \dontrun{
-data(mufindi)
-feed_basket_quality <- feed_quality(mufindi)
-energy_requirement(mufindi,feed_basket_quality,energy_parameters)
+para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
+energy_parameters <- jsonlite::fromJSON(system.file("extdata", "energy_parameters.json", package = "cleaned"), flatten = TRUE)
+feed_basket_quality <- feed_quality(para)
+energy_requirement(para,feed_basket_quality,energy_parameters)
 }
 
 }

@@ -4,12 +4,15 @@
 \alias{n_balance}
 \title{N balance}
 \usage{
-n_balance(para, land_required, soil_erosion)
+n_balance(para, land_required, energy_required = NULL, soil_erosion = NULL)
 }
 \arguments{
 \item{para}{A JSON file containing user inputs}
 
 \item{land_required}{A list computed using the `land_requirement` function}
+
+\item{energy_required}{A list computed using the `energy_requirement`
+function (optional).}
 
 \item{soil_erosion}{A dataframe computed using the `soil_health` function}
 }
@@ -21,7 +24,7 @@ It computes nitrogen balance
 }
 \examples{
 \dontrun{
-data(mufindi)
+para <- jsonlite::fromJSON("study_object.json", flatten = TRUE)
 feed_basket_quality <- feed_quality(para)
 energy_required <- energy_requirement(para,feed_basket_quality)
 land_required <- land_requirement(feed_basket_quality, energy_required, para)

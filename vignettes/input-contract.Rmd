@@ -70,12 +70,27 @@ Older example objects may contain legacy aliases such as `txt_annual_prec` or th
 
 | Field | Used by | Notes |
 |---|---|---|
-| `livetype_code` | Feed allocation, energy, land, GHG | Stable livestock category code. |
-| `livetype_desc` | Energy, productivity, outputs | Human-readable livestock category name. |
-| `ipcc_ef_category_t1` | GHG | Tier 1 enteric fermentation category. |
-| `ipcc_ef_category_t2` | GHG | Tier 2 enteric fermentation/productivity category. |
-| `ipcc_meth_man_category` | GHG/manure and productivity grouping | Methane manure-management category. |
-| `ipcc_n_exc_category` | GHG | Nitrogen excretion category. |
+| `livetype_code` | Feed allocation, energy, land, GHG | Stable livestock category code. Feed allocations refer to this code. |
+| `livetype_desc` | Outputs | Human-readable livestock category name. It is a label only: no equation depends on it, so categories can be added or renamed freely. |
+| `species` | Energy, nitrogen, outputs | One of `Cattle`, `Buffalo`, `Sheep`, `Goats`, `Pigs`. |
+| `animal_class` | Energy, nitrogen | Physiological class within the species (see below). |
+| `ipcc_ef_category_t2` | GHG (enteric CH4) | Selects Ym (IPCC Tables 10.12/10.13): `Dairy cows`, `Non-dairy`, `Sheep`, `Goats`, `N/A`. |
+| `ipcc_manure_ch4_category` | GHG (manure CH4) | Selects Bo from IPCC Table 10.16 together with region and productivity: `Dairy cattle`, `Other cattle`, `Buffalo`, `Sheep`, `Goats`, `Swine`. Also sets the urinary energy fraction (0.02 for swine, 0.04 otherwise). |
+| `ipcc_n_loss_category` | GHG (indirect N2O), manure N | Selects N volatilisation/leaching fractions from IPCC Table 10.22: `Dairy Cow`, `Other Cattle`, `Swine`, `Poultry`, `Other animals`. |
+| `ipcc_prp_category` | GHG (pasture N2O) | Selects EF3PRP from IPCC Table 11.1: `Cattle, pigs and poultry` or `Sheep and other animals`. |
+
+Allowed `animal_class` values per species (see `?livestock_species_classes`):
+
+| Species | Classes |
+|---|---|
+| Cattle, Buffalo | `Cows` (adult females, lactating or dry), `Adult males`, `Young stock` (steers, heifers, calves) |
+| Sheep | `Ewes`, `Breeding rams`, `Fattening rams`, `Lambs` |
+| Goats | `Does`, `Breeding bucks`, `Fattening bucks`, `Kids` |
+| Pigs | `Lactating/pregnant sows`, `Dry sows/boars`, `Growers` |
+
+Only IPCC Tier 2 is used for GHG calculations. The Tier 1 fields of older objects (`ipcc_ef_category_t1`, `ipcc_meth_man_category`, `ipcc_n_exc_category`) are ignored. Objects without the classification fields still run: `resolve_livestock_categories()` fills them from the names of the 23 standard iCLEANED livestock types and stops with an informative error for any other name. A dry cow is a `Cows` row with `annual_milk = 0`; its lower energy requirement lowers its emissions.
+
+Manure management labels must match the IPCC tables (for example `Pasture/Range/Paddock`). The older labels `Pasture / range / paddock` and `Anaer digester, Low leak, HQ stor, HQ tec.` are corrected automatically by `normalise_manure_systems()`.
 
 ## Herd and production fields
 
